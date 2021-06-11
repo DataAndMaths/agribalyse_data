@@ -20,7 +20,7 @@ from plotly.offline import iplot, plot
 from plotly.subplots import make_subplots
 ## fixer le theme
 import plotly.io as pio
-pio.templates.default = 'ggplot2'
+#pio.templates.default = 'ggplot2'
 
 
 
@@ -112,7 +112,7 @@ def page2():
     
     
      #-----------------------------------#
-    theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2')" ,
+    theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='')" ,
                                         ['ggplot2', 'seaborn', 'simple_white', 'plotly',
                                          'plotly_white', 'plotly_dark', 'presentation', 'xgridoff',
                                          'ygridoff', 'gridon', 'none'])
