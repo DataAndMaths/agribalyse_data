@@ -22,6 +22,8 @@ from plotly.subplots import make_subplots
 import plotly.io as pio
 pio.templates.default = 'ggplot2'
 
+@st.cache
+
 # pour afficher les informations générales sur le dataset
 #from pandas_profiling import ProfileReport
 #from streamlit_pandas_profiling import st_profile_report
