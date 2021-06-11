@@ -76,7 +76,10 @@ def page1():
                 " :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:"+
                 " :tractor:  :tractor:  :tractor:")         
              
-             
+    st.markdown(":truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
+                " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
+                " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
+                " :truck:  :truck:  :truck:")
              
              
     #-------------------------------------------------------------------------#    
