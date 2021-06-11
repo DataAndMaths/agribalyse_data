@@ -262,19 +262,12 @@ def page2():
             st.markdown("*Malgré le message d'erreur quand le multiselect est vide, cela semble fonctionner ...  :confused:*")
  
  
-  #-------------------------------------------------------------------------#
-    st.markdown("Variables continues et catégorielles")
-    
-    # choisir le type de graphique
-    type_cont_cat = st.selectbox("Sélectionner le type de graphique", 
-                                 ["Box plot", "Ridgeline"])
-   
     
   #-------------------------------------------------------------------------#
     st.markdown("Variables continues et catégorielles")
     
-    # choisir le type de graphique
-    type_cont_cat = st.selectbox("Sélectionner le type de graphique", 
+    # choisir le type de graphique  
+    type_cont_cat = st.selectbox("Sélectionner le type de graphiqu  (message d'erreur, mais cela semble fonctionner ...  :confused:e", 
                                  ["Box plot", "Ridgeline"],
                                  key="cont_cat")
    
