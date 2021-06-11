@@ -55,7 +55,7 @@ def main():
     
     #-----------------------------------#
     theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2')" ,
-                                        ["blabla"])
+                                        pio.templates.default)
     
     pio.templates.default = theme_select
     #-----------------------------------#    
