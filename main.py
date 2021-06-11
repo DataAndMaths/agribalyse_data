@@ -169,7 +169,7 @@ def page2():
     
     #-----------------------------------#
     theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2')" ,
-                                        pio.templates)
+                                        ["blabla"])
     
     pio.templates.default = theme_select
     #-----------------------------------#
