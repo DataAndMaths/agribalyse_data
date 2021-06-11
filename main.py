@@ -70,6 +70,11 @@ def page1():
              
              """)
              
+    st.markdown(":tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor: ")         
+             
+             
+             
+             
     #-------------------------------------------------------------------------#    
     st.header("Qu'est-ce qu'Agribalyse ?")   
     st.markdown("""
@@ -111,6 +116,7 @@ def page2():
     
     pio.templates.default = theme_select
     #-----------------------------------#    
+    
     
     
     st.title('Exploration des données')
