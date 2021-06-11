@@ -22,7 +22,7 @@ from plotly.subplots import make_subplots
 import plotly.io as pio
 pio.templates.default = 'ggplot2'
 
-@st.cache()
+
 
 # pour afficher les informations générales sur le dataset
 #from pandas_profiling import ProfileReport
@@ -170,7 +170,7 @@ def page2():
     var_cont = st.selectbox("Sélectionner votre variable continue", 
                               synthese_dataset.select_dtypes(float).columns)
     
-    number_bins = st.slider('Nombre de bins', min_value=1, max_value=500)
+    number_bins = st.slider('Nombre de bins', min_value=4, max_value=500)
     
     if var_cont is not None: 
         if number_bins is not None: 
