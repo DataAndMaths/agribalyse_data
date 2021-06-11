@@ -121,7 +121,7 @@ def page1():
 def page2():
     
     
-    st.sidebar()
+    st.sidebar.markdown("")
     
     #--Sélection Thème des graphique----#
     theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (il y a quelques conflits avec celui de Streamlit))" ,
