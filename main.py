@@ -87,7 +87,12 @@ def page1():
                 " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
                 " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:")
              
-             
+    st.markdown("\U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2 \U0001f6D2"+
+                " \U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2 \U0001f6D2"+
+                " \U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2 \U0001f6D2"+
+                " \U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2  \U0001f6D2")             
+                
+                
     #-------------------------------------------------------------------------#    
     st.header("Qu'est-ce qu'Agribalyse ?")   
     st.markdown("""
@@ -123,7 +128,7 @@ def page2():
     
     st.sidebar.markdown("")
     
-    #--Sélection Thème des graphique----#
+    #--Sélection du Thème des graphique----#
     theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (il y a quelques conflits avec celui de Streamlit))" ,
                                         ['ggplot2', 'seaborn', 'simple_white', 'plotly',
                                          'plotly_white', 'plotly_dark', 'presentation', 'xgridoff',
