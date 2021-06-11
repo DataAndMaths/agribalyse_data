@@ -75,8 +75,16 @@ def page1():
                 " :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:"+
                 " :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:"+
                 " :tractor:  :tractor:  :tractor:")         
-             
+    
+    st.markdown("\U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956"+
+                " \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956"+
+                " \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956"+
+                " \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956"+
+                " \U0001f956  \U0001f956  \U0001f956")
+
+         
     st.markdown(":truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
+                " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
                 " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
                 " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
                 " :truck:  :truck:  :truck:")
