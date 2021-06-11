@@ -20,7 +20,7 @@ from plotly.offline import iplot, plot
 from plotly.subplots import make_subplots
 ## fixer le theme
 import plotly.io as pio
-#pio.templates.default = 'ggplot2'
+pio.templates.default = 'ggplot2'
 
 
 
@@ -53,14 +53,6 @@ def main():
     page = st.sidebar.radio("", list(PAGES.keys()))
     PAGES[page]()
     
-    #-----------------------------------#
-    theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2')" ,
-                                        ['ggplot2', 'seaborn', 'simple_white', 'plotly',
-                                         'plotly_white', 'plotly_dark', 'presentation', 'xgridoff',
-                                         'ygridoff', 'gridon', 'none'])
-    
-    pio.templates.default = theme_select
-    #-----------------------------------#    
         
 ##############################################################################
 # Fonctions correspondant aux différentes pages
@@ -111,8 +103,8 @@ def page1():
 def page2():
     
     
-     #-----------------------------------#
-    theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='')" ,
+    #--Sélection Thème des graphique----#
+    theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (il y a quelques conflits avec celui de Streamlit))" ,
                                         ['ggplot2', 'seaborn', 'simple_white', 'plotly',
                                          'plotly_white', 'plotly_dark', 'presentation', 'xgridoff',
                                          'ygridoff', 'gridon', 'none'])
