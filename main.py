@@ -85,7 +85,7 @@ def page1():
     st.markdown(":truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
                 " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
                 " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
-                " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:")
+                " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:")
              
              
     #-------------------------------------------------------------------------#    
