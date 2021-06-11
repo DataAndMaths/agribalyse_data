@@ -22,7 +22,7 @@ from plotly.subplots import make_subplots
 import plotly.io as pio
 pio.templates.default = 'ggplot2'
 
-@st.cache
+@st.cache()
 
 # pour afficher les informations générales sur le dataset
 #from pandas_profiling import ProfileReport
