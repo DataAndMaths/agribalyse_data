@@ -54,10 +54,10 @@ def main():
     PAGES[page]()
     
     #-----------------------------------#
-    theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2')" ,
-                                        pio.templates)
+  #  theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2')" ,
+   #                                     pio.templates)
     
-    pio.templates.default = theme_select
+    #pio.templates.default = theme_select
     #-----------------------------------#    
         
 ##############################################################################
