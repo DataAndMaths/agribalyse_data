@@ -24,6 +24,8 @@ pio.templates.default = 'ggplot2'
 
 
 
+
+
 # pour afficher les informations générales sur le dataset
 #from pandas_profiling import ProfileReport
 #from streamlit_pandas_profiling import st_profile_report
@@ -51,6 +53,12 @@ def main():
     page = st.sidebar.radio("", list(PAGES.keys()))
     PAGES[page]()
     
+    #-----------------------------------#
+    theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2')" ,
+                                        ["blabla"])
+    
+    pio.templates.default = theme_select
+    #-----------------------------------#    
         
 ##############################################################################
 # Fonctions correspondant aux différentes pages
@@ -166,13 +174,6 @@ def page2():
     
     #-------------------------------------------------------------------------#
     st.subheader("Analyse univariée")
-    
-    #-----------------------------------#
-    theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2')" ,
-                                        ["blabla"])
-    
-    pio.templates.default = theme_select
-    #-----------------------------------#
     
     #-------------------------------------------------------------------------#
     st.markdown("Variable continue")
