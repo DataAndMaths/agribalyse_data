@@ -54,10 +54,12 @@ def main():
     PAGES[page]()
     
     #-----------------------------------#
-  #  theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2')" ,
-   #                                     pio.templates)
+    theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2')" ,
+                                        ['ggplot2', 'seaborn', 'simple_white', 'plotly',
+                                         'plotly_white', 'plotly_dark', 'presentation', 'xgridoff',
+                                         'ygridoff', 'gridon', 'none'])
     
-    #pio.templates.default = theme_select
+    pio.templates.default = theme_select
     #-----------------------------------#    
         
 ##############################################################################
@@ -107,6 +109,18 @@ def page1():
 #==============================   Page 2  ====================================#
 #========================  Exploration des données  ==========================#
 def page2():
+    
+    
+     #-----------------------------------#
+    theme_select = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2')" ,
+                                        ['ggplot2', 'seaborn', 'simple_white', 'plotly',
+                                         'plotly_white', 'plotly_dark', 'presentation', 'xgridoff',
+                                         'ygridoff', 'gridon', 'none'])
+    
+    pio.templates.default = theme_select
+    #-----------------------------------#    
+    
+    
     st.title('Exploration des données')
     st.write("##")
     
