@@ -168,8 +168,8 @@ def page2():
     st.subheader("Analyse univariée")
     
     #-----------------------------------#
-    theme = sidebar. st.select("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2'" ,
-                      pio.templates)
+    theme = st.sidebar.selectbox("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2'" ,
+                                 pio.templates)
     
     pio.templates.default = theme
     #-----------------------------------#
