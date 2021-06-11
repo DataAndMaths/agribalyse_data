@@ -79,15 +79,13 @@ def page1():
     st.markdown("\U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956"+
                 " \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956"+
                 " \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956"+
-                " \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956"+
-                " \U0001f956  \U0001f956  \U0001f956")
+                " \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956")
 
          
     st.markdown(":truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
                 " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
                 " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
-                " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:"+
-                " :truck:  :truck:  :truck:")
+                " :truck:  :truck:  :truck:  :truck:  :truck:  :truck:  :truck:")
              
              
     #-------------------------------------------------------------------------#    
