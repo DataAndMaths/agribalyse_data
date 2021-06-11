@@ -163,7 +163,16 @@ def page2():
     #-------------------------------------------------------------------------#
     #-------------------------------------------------------------------------#
     st.header("2e niveau d'exploration")
+    
+    #-------------------------------------------------------------------------#
     st.subheader("Analyse univariée")
+    
+    #-----------------------------------#
+    theme = sidebar. st.select("Choisissez le thème de vos graphiques pour la suite (default ='ggplot2'" ,
+                      pio.templates)
+    
+    pio.templates.default = theme
+    #-----------------------------------#
     
     #-------------------------------------------------------------------------#
     st.markdown("Variable continue")
