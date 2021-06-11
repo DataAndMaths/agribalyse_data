@@ -70,7 +70,10 @@ def page1():
              
              """)
              
-    st.markdown(":tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor: ")         
+    st.markdown(":tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:"+
+                " :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:"+
+                " :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:"+
+                " :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:")         
              
              
              
