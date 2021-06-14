@@ -277,7 +277,7 @@ def page2():
 
             st.write(fig)
     
-            st.markdown("""*Mmm ... Petit problème de labels à régler :confused:*""")
+            # st.markdown("""*Mmm ... Petit problème de labels à régler :confused:*""")
    
      #-----------------------------------#
     elif type_cont=="Parallel Coordinates Plot":
