@@ -268,6 +268,13 @@ def page2():
             fig = px.scatter_matrix(synthese_dataset,
                                     dimensions=var_conts_scatter_mat, 
                                     title='Scatter Matrix')
+            # taille markers
+            fig.update_traces(marker=dict(size=1))
+            # enlever ou réduire les labels, valeurs, ticks qui rendent illisibles
+            nb_col=len(var_conts_scatter_mat)  
+            fig.update_layout({"xaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+3.8)/nb_col)) for i in range(nb_col)})
+            fig.update_layout({"yaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+2.2)/nb_col)) for i in range(nb_col)})
+
             st.write(fig)
     
             st.markdown("""*Mmm ... Petit problème de labels à régler :confused:*""")
