@@ -12,12 +12,15 @@ import streamlit as st
 
 # general
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # plotly
 import plotly.express as px
 import plotly.graph_objs as go
 from plotly.offline import iplot, plot
 from plotly.subplots import make_subplots
+import plotly.figure_factory as ff
 ## fixer le theme
 import plotly.io as pio
 pio.templates.default = 'ggplot2'
@@ -118,7 +121,7 @@ def page1():
     st.header("Que pouvez-vous faire avec cette petite application ? ")
     st.markdown("""
                 Dans la version actuelle, elle vous permet d'explorer les
-                données à l'aide de Plotly  \U0001f642 .
+                données à l'aide essentiellement de Plotly  \U0001f642 .
                 """
                 )
    
@@ -192,16 +195,24 @@ def page2():
     #-------------------------------------------------------------------------#
     st.subheader('Informations générales')
     
-    st.markdown("Format des données")
+    st.markdown("#### Format des données")
     st.write(synthese_dataset.shape)
     
-    st.markdown("Identification des variables")
+    st.markdown("#### Identification des variables")
     st.markdown("Type des variables")
     st.write(synthese_dataset.dtypes)
     
     st.write("Variable cible :dart:")
-    target = st.selectbox("Quelle est votre variable cible ?", 
-                             synthese_dataset.columns)
+    #target = st.selectbox("Quelle est votre variable cible ?", 
+    #                      synthese_dataset.columns, 
+    #                     index=11)   # variable affichée par defaut
+    target = 'DQR - Note de qualité de la donnée (1 excellente ; 5 très faible)'
+    st.markdown("La variable cible est '{}'.".format(target))
+    
+    
+    st.markdown("#### Données manquantes")
+    st.write("Il n'y a aucune donnée manquante.")
+    st.write(pd.DataFrame(synthese_dataset.isna().sum()))
     
     #-------------------------------------------------------------------------#
     #-------------------------------------------------------------------------#
@@ -211,30 +222,31 @@ def page2():
     st.subheader("Analyse univariée")
     
     #-------------------------------------------------------------------------#
-    st.markdown("Variable continue")
-    var_cont = st.selectbox("Sélectionner votre variable continue", 
-                              synthese_dataset.select_dtypes(float).columns)
+    st.markdown("#### Variable continue")
+    var_cont = st.selectbox("Sélectionnez une variable continue", 
+                            synthese_dataset.select_dtypes(float).columns,
+                            index=0)   # variable affichée par defaut
     
-    number_bins = st.slider('Nombre de bins', min_value=4, max_value=500)
+    number_bins = st.slider('Nombre de bins', min_value=4, max_value=500,
+                            value=4)
     
-    if var_cont is not None: 
-        if number_bins is not None: 
-            fig = px.histogram(synthese_dataset, x=var_cont, nbins=number_bins,
-                               histnorm='probability',
-                               marginal='box',
-                               title='Histogramme de la variable {}'.format(var_cont))
-            st.write(fig)
+    fig = px.histogram(synthese_dataset, x=var_cont, nbins=number_bins,
+                       histnorm='probability',
+                       marginal='box',
+                       title='Histogramme de la variable {}'.format(var_cont))
+    st.write(fig)
     
     #-------------------------------------------------------------------------#
-    st.markdown("Variable catégorielle")
-    var_cat = st.selectbox("Sélectionner votre variable catégorielle", 
+    st.markdown("#### Variable catégorielle")
+    var_cat = st.selectbox("Sélectionnez une variable catégorielle", 
                               synthese_dataset.select_dtypes(object).columns,
-                              key="cat")
-    if var_cat is not None:
-        fig = px.histogram(synthese_dataset, x=var_cat,
-                           title='Distribution de la variable {}'.format(var_cat))
-        fig.update_xaxes(categoryorder="total descending")
-        st.write(fig)
+                              key="cat",
+                              index=1)   # variable affichée par defaut
+    
+    fig = px.histogram(synthese_dataset, x=var_cat,
+                       title='Distribution de la variable {}'.format(var_cat))
+    fig.update_xaxes(categoryorder="total descending")
+    st.write(fig)
 
     
     #-------------------------------------------------------------------------#
@@ -242,19 +254,19 @@ def page2():
     
     
     #-------------------------------------------------------------------------#
-    st.markdown("Variables continues")
+    st.markdown("#### Variables continues")
     
     # choisir le type de graphique
-    type_cont = st.selectbox("Sélectionner le type de graphique", 
-                              ["Scatter Matrix", "Parallel Coordinates Plot"])
+    type_cont = st.selectbox("Sélectionnez le type de graphique", 
+                              ["Scatter Matrix", "Parallel Coordinates Plot"], 
+                              index=0)    # variable affichée par defaut
     
     #-----------------------------------#
     if type_cont=="Scatter Matrix":
-        var_conts_scatter_mat = st.multiselect("Sélectionner vos variables continues", 
+        var_conts_scatter_mat = st.multiselect("Sélectionnez les variables continues", 
                                                synthese_dataset.select_dtypes(float).columns,
-                                               key="cont_scatter_matr",
-                                               default=None)
-        if var_conts_scatter_mat is not None:
+                                               key="cont_scatter_matr")
+        if var_conts_scatter_mat !=():
             fig = px.scatter_matrix(synthese_dataset,
                                     dimensions=var_conts_scatter_mat, 
                                     title='Scatter Matrix')
@@ -264,30 +276,31 @@ def page2():
    
      #-----------------------------------#
     elif type_cont=="Parallel Coordinates Plot":
-        var_conts_parallel = st.multiselect("Sélectionner vos variables continues", 
+        var_conts_parallel = st.multiselect("Sélectionnez les variables continues", 
                                             synthese_dataset.select_dtypes(float).columns, 
-                                            key="cont_parallel",
-                                            default=None)
-        if var_conts_parallel is not None:
+                                            key="cont_parallel")
+        if var_conts_parallel !=[]:
             fig = px.parallel_coordinates(synthese_dataset,
                                           dimensions=var_conts_parallel, 
                                           title='Parallel Coordinates Chart')
             st.write(fig)
    
     #-------------------------------------------------------------------------#
-    st.markdown("Variables catégorielles")
+    st.markdown("#### Variables catégorielles")
+    
+    #st.markdown("*Malgré le message d'erreur quand le multiselect est vide, cela semble fonctionner ...  :confused:*")
     
     # choisir le type de graphique
     type_cat = st.selectbox("Sélectionner le type de graphique", 
-                              ["Parallel categories plot", "Arbre"])
+                            ["Parallel categories plot", "Arbre"])
     
     #-----------------------------------#
     if type_cat=="Parallel categories plot":
-        var_cats_parallel = st.multiselect("Sélectionner vos variables catégorielles", 
+        var_cats_parallel = st.multiselect("Sélectionnez les variables catégorielles", 
                                            synthese_dataset.select_dtypes(object).columns, 
-                                           key="cats_parallel",
-                                           default=None)
-        if var_cats_parallel is not None:
+                                           key="cats_parallel")
+                                          
+        if var_cats_parallel != []:
                 fig = px.parallel_categories(synthese_dataset,
                                              dimensions=var_cats_parallel,
                                              title="Parallel categories plot")
@@ -295,38 +308,37 @@ def page2():
                 
     #-----------------------------------#
     elif type_cat=="Arbre":
-        var_cats_tree = st.multiselect("Sélectionner deux variables catégorielles"+
-                                       " (Malgré le message d'erreur quand le multiselect est vide, cela semble fonctionner ...*", 
+        var_cats_tree = st.multiselect("Sélectionnez deux variables catégorielles", 
                                        synthese_dataset.select_dtypes(object).columns,
-                                       key="cats_tree",
-                                       default=None)
-        if var_cats_tree is not None:
+                                       key="cats_tree")
+                                      
+        if var_cats_tree != []:
             fig = px.treemap(synthese_dataset,
                              path=var_cats_tree,
                              title="Arbre")
             st.write(fig) 
             
-            st.markdown("*Malgré le message d'erreur quand le multiselect est vide, cela semble fonctionner ...  :confused:*")
+            
  
  
     
   #-------------------------------------------------------------------------#
-    st.markdown("Variables continues et catégorielles")
+    st.markdown("#### Variables continues et catégorielles")
     
-    st.markdown("*Malgré le message d'erreur quand le multiselect est vide, cela semble fonctionner ...  :confused:*")
+    #st.markdown(" *Malgré le message d'erreur quand le multiselect est vide, cela semble fonctionner ...  :confused: *")
     
     # choisir le type de graphique  
-    type_cont_cat = st.selectbox("Sélectionner le type de graphique", 
-                                 ["Box plot", "Ridgeline"],
+    type_cont_cat = st.selectbox("Sélectionnez le type de graphique", 
+                                 ["Box plot", "Ridgeline", "Parallel categories plot"],
                                  key="cont_cat")
    
     
     #-----------------------------------#
     if type_cont_cat=="Box plot":
-        var_cont1_cat2_box = st.multiselect("Sélectionner votre variable continue, puis votre variable catégorielle", 
+        var_cont1_cat2_box = st.multiselect("Sélectionnez votre variable continue, puis votre variable catégorielle", 
                                             synthese_dataset.columns,
                                             key="cont_1_cat2_box")
-        if var_cont1_cat2_box is not None:
+        if var_cont1_cat2_box != []:
             var_cont1_box=var_cont1_cat2_box[0]
             var_cat2_box=var_cont1_cat2_box[1]
             fig = px.box(synthese_dataset, 
@@ -340,10 +352,10 @@ def page2():
     
     #-----------------------------------#
     if type_cont_cat=="Ridgeline":
-        var_cont1_cat2_ridge = st.multiselect("Sélectionner votre variable continue, puis votre variable catégorielle", 
+        var_cont1_cat2_ridge = st.multiselect("Sélectionnez votre variable continue, puis votre variable catégorielle", 
                                             synthese_dataset.columns,
                                             key="cont_1_cat2_ridge")
-        if var_cont1_cat2_ridge is not None:
+        if var_cont1_cat2_ridge !=[]:
             var_cont1_ridge=var_cont1_cat2_ridge[0]
             var_cat2_ridge=var_cont1_cat2_ridge[1]
             fig = px.violin(synthese_dataset, 
@@ -351,11 +363,35 @@ def page2():
                             y=var_cat2_ridge,
                             orientation='h', 
                             color=var_cat2_ridge,
-                            title="{} en fonction {}".format(var_cont1_ridge, var_cat2_ridge))
+                            title="{} en fonction de {}".format(var_cont1_ridge, var_cat2_ridge))
             fig.update_traces(side='positive', width=2)
             fig.update_layout(showlegend=False) 
             st.write(fig)  
-###############################################################################
+            
+            
+    #-----------------------------------#
+    if type_cont_cat=="Parallel categories plot":
+        var_cat1_cont2_parallel = st.multiselect("Sélectionnez votre variable catégorielle, puis votre variable continue", 
+                                                 synthese_dataset.columns,
+                                                 key="cat_1_cont2_parallel")  
+        
+        if var_cat1_cont2_parallel !=[]:
+            var_cat1_parallel=var_cat1_cont2_parallel[0]
+            var_cont2_parallel=var_cat1_cont2_parallel[1]
+            
+            fig = px.parallel_categories(synthese_dataset, dimensions=[var_cat1_parallel], 
+                                   color=var_cont2_parallel, 
+                                   color_continuous_scale=px.colors.diverging.Tealrose, 
+                                   color_continuous_midpoint=3)
+            st.write(fig)
+            
+            
+            
+            
+            
+    
+
+#########################################################
 if __name__=="__main__":
     main()
 
