@@ -434,13 +434,120 @@ def page2():
     #-------------------------------------------------------------------------#
     st.subheader(" Entre variables numériques")        
    
+    # colonnes type 'float' sans la variable cible
+    col_float_no_target = synthese_dataset.select_dtypes(float).drop(target,axis=1).columns
+    nb_col = len(col_float_no_target) 
+    
+    
+    #-----------------------------------#
+    select_conts = st.selectbox("Sélectionnez le type de graphique",
+                                ["Scatter Matrix complète", "Scatter Matrix", "Clustermap"],
+                                key="select_conts") 
+    
+    
+    #-----------------------------------#
+    if select_conts=="Scatter Matrix complète":
+        fig = px.scatter_matrix(synthese_dataset, dimensions=col_float_no_target,
+                                title="Scatter matrix des variables numériques, sans la variable cible")
+        fig.update_traces(marker=dict(size=1))
+        fig.update_layout({"xaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+3.8)/nb_col)) for i in range(nb_col)})
+        fig.update_layout({"yaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+2.2)/nb_col)) for i in range(nb_col)})
+        fig.update_layout(autosize=False, width=750, height=710)
+        st.write(fig)
+            
+    #-----------------------------------#
+    elif select_conts=="Scatter Matrix":
+         var_conts_scatter_mat = st.multiselect("Sélectionnez les variables continues", 
+                                                synthese_dataset.select_dtypes(float).drop(target,axis=1).columns,
+                                                key="conts_scatter_matr")
+         if var_conts_scatter_mat !=():
+             fig = px.scatter_matrix(synthese_dataset,
+                                     dimensions=var_conts_scatter_mat, 
+                                     title='Scatter Matrix')
+             # taille markers
+             fig.update_traces(marker=dict(size=2.5))
+             # enlever ou réduire les labels, valeurs, ticks qui rendent illisibles
+             nb_col=len(var_conts_scatter_mat)  
+             fig.update_layout({"xaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+4)/nb_col)) for i in range(nb_col)})
+             fig.update_layout({"yaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+3)/nb_col)) for i in range(nb_col)})
+             #fig.update_layout({"xaxis" : dict( titlefont=dict(size=(nb_col+3.8)/nb_col)) })
+             #fig.update_layout({"yaxis" : dict( titlefont=dict(size=(nb_col+2.2)/nb_col)) })             
+             fig.update_layout(autosize=False, width=750, height=710)
+             st.write(fig)
+    
+            # st.markdown("""*Mmm ... Petit problème de labels à régler :confused:*""")
+   
+    
+    #-----------------------------------#
+    elif select_conts=="Clustermap":
+        fig = plt.figure()
+        fig = sns.clustermap(synthese_dataset.select_dtypes(float).drop(target,axis=1).corr(),
+                             cmap="vlag",
+                             figsize=(15,15),
+                             cbar_pos=(0.00, 0.9, 0.05, 0.18))
+        st.pyplot(fig)
+        
+        
+        
+        
     #-------------------------------------------------------------------------#         
     st.subheader(" Entre variables catégorielles")
     
+    # colonnes type 'object' sans la variable cible, sans 'Nom du Produit en Français'
+    col_object_no_target = synthese_dataset.select_dtypes(object).drop('Nom du Produit en Français', axis=1).columns
+    
+    
+    #-----------------------------------#
+    select_cats = st.selectbox("Sélectionnez l'outil",
+                              ["Histogramme", "Table de contingence"],
+                              key="select_cats") 
+    
+    
+    #-----------------------------------#
+    if select_cats=="Histogramme":
+        var_cats_hist = st.multiselect("Sélectionnez les variables catégorielles ('Code AGB', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
+                                       synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                       key="cats_hist")
+        
+        if var_cats_hist != []:
+            cat1_h = var_cats_hist[0]
+            cat2_h = var_cats_hist[1]
+            fig = px.histogram(synthese_dataset, x=cat1_h, color=cat2_h, 
+                               color_discrete_sequence=px.colors.qualitative.Set3)            
+            st.write(fig)
+    
+    
+    #-----------------------------------#
+    elif select_cats=="Table de contingence":
+        var_cats_table = st.multiselect("Sélectionnez les variables catégorielles ('Code AGB', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
+                                        synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                        key="cats_table")
+
+        if var_cats_table != []:
+            cat1_t = var_cats_table[0]
+            cat2_t = var_cats_table[1]
+            
+            # table de contingence
+            df = synthese_dataset[[cat1_t,cat2_t]].pivot_table(index=cat1_t,columns=cat2_t,
+                                                             aggfunc=len,
+                                                             # margins=True,margins_name="Total",
+                                                             fill_value=0)   # remplacer les Nan par 0 
+            # heatmap
+            #fig = plt.figure(figsize=(22,8))
+            # fig = sns.heatmap(df)   # d=integer
+            
+            
+            fig, ax = plt.subplots()
+            sns.heatmap(df, ax=ax, annot=True, fmt='d')   # d=integer
+            st.write(fig)
+  
+            st.markdown("""*Mmm ... Affichage à améliorer :confused:*""")
+    
+  
+
     #-------------------------------------------------------------------------#
     st.subheader(" Entre variables numériques et catégorielles")        
-            
-            
+                
 #########################################################
 if __name__=="__main__":
     main()
