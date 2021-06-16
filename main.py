@@ -662,15 +662,184 @@ def page2():
     st.markdown("Après une analyse essentiellement graphique, nous complétons par quelques statistiques. ")
   
     
+    #-------------------------------------------------------------------------#
+    st.subheader(" Entre variables numériques et catégorielles")    
+    
+    st.markdown("#### Indicateur $\eta^2$")
   
+    st.markdown("""
+    On utilise un indicateur appelé le **rapport de corrélation** $\eta^2$ :  
+    * c'est un nombre compris entre 0 et 1
+    * si $\eta^2$=0, il n’y a pas a priori de relation entre les variables
+    * si $\eta^2$=1, il n’existe pas a priori de relation entre les variables.
+
+    [Formules](https://openclassrooms.com/fr/courses/4525266-decrivez-et-nettoyez-votre-jeu-de-donnees/4774896-analysez-une-variable-quantitative-et-une-qualitative-par-anova) :  
+    """)
+    
+    st.latex(r'''
+             SCT = 
+             \sum_{j} (y_{j} - \bar{y})^2
+             ''')
+    st.latex(r'''
+             SCE = 
+             \sum_j n_j (\bar{y_j} - \bar y)^2
+             ''')                 
+    st.latex(r''' 
+             \eta^2 =
+             \frac{SCE}{SCT}
+             ''')
+    
+    
+    #-----------------------------------#
+    #Fonction pour calculer $\eta^2$
+    #On commence par définir une fonction pour calculer eta^2.
+    
+    # x : variable catégorielle 
+    # y : variable quantitative
+
+    def eta_squared(x,y):
+        # moyenne de y (y^bar)
+        moyenne_y = y.mean()
+    
+        # on récupère dans une liste les informations sur les classes sous forme de dictionnaire :
+            # taille de la classe (n_i) et moyenne de la classe (yi^bar)
+        classes = []
+    
+        # on fait une boucle sur les classes
+        # pour chaque classe :
+            # récupérer les valeurs de y relative à la classe ()
+            # récupérer la taille de la classe (n_i) et la moyenne de la classe (y_i^bar)
+    
+        for classe in x.unique():
+            yi_classe = y[x==classe]
+            classes.append({'ni': len(yi_classe),
+                            'moyenne_classe': yi_classe.mean()})
+        
+        # on calcule :
+            # la variation totale SCT
+            # la variation interclasse SCE
+        # on retourne le rapport de corrélation eta^2
+        SCT = sum([(yj-moyenne_y)**2 for yj in y])
+        SCE = sum([c['ni']*(c['moyenne_classe']-moyenne_y)**2 for c in classes])
+        return SCE/SCT
+    
+    
+    #-----------------------------------#
+    st.markdown("#### Application")
+    st.markdown("")
+    
+    var_cont1_cat2_eta2 = st.multiselect("Sélectionnez une variable continue, puis une variable catégorielle ('Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
+                                         synthese_dataset.drop(['Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                         key="cont_1_cat2_eta2") 
+
+    if var_cont1_cat2_eta2 !=[]:
+        cont1_eta = var_cont1_cat2_eta2[0]
+        cat2_eta = var_cont1_cat2_eta2[1]
+        st.write("{} et {} : \n{:.2f}".format(cat2_eta,cont1_eta, eta_squared(synthese_dataset[cat2_eta], synthese_dataset[cont1_eta])))
+    
+    
+
+
+    #-------------------------------------------------------------------------#
+    st.subheader("Entre variables catégorielles")    
+    
+    st.markdown("#### Table de contingence avec indicateur de dépendance")
+  
+    st.markdown("")
+    st.markdown("""
+    Ici, on ne peut pas utiliser le test du khi2 vu que la condition asymptotique n'est pas vérifiée (ie : les effectifs ne sont pas tous supérieurs à 5).  
+    Nous allons colorer les cases non pas avec l'effectif mais avec une valeur qui donne une indication sur l'indépendence des deux variables.   
+    
+    Les idées :
+    * on mesure l'écart entre l'effectif observée (une cellule de la table) et l'effectif attendu en cas d'indépendance (produit des deux totaux divisé par l'effectif total) 
+    * on transforme pour avoir un nombre entre 0 et 1 
+    * on peut voir ce nombre comme une contribution à la non-indépendance des deux variables 
+    * plus la case est claire, plus la case est source de non-indépendance.   
+    
+    [Formules](https://openclassrooms.com/fr/courses/4525266-decrivez-et-nettoyez-votre-jeu-de-donnees/4775616-analysez-deux-variables-qualitatives-avec-le-chi-2) :
+                """) 
+                
+    #st.latex(r'''
+    #         une cellule de la table $n_{ij}
+    #         ''')
+    #st.latex(r'''
+    #         \frac{n_{i.} n_{.j}}{n} 
+    #         ''')
+            
+    #st.latex(r'''
+    #         n_{ij} - \frac{n_{i.} n_{.j}}{n}
+    #         ''')
+
+    #st.latex(r'''
+    #        (n_{ij} - \frac{n_{i.} n_{.j}}{n})^2
+    #         ''')
+            
+    st.latex(r'''
+             \xi_{ij} = \frac{(n_{ij} - \frac{n_{i.} n_{.j}}{n})^2}{ \frac{n_{i.} n_{.j}}{n}}
+             ''')
+            
+    st.latex(r'''
+             \xi_n = \sum_i \sum_j\xi_{ij}
+            ''')
+            
+            
+    st.latex(r'''
+             {\xi_{ij}}_{normalisé} = \frac {\xi_{ij}}{\xi_n}
+             ''')
+            
+  
+    #-----------------------------------#
+    #Fonction pour construire la table avec indicateur de dépendance
+    
+    # construisons d'abord une fonction 
+    # qui prend : (1) le dataset (2) les deux variables catégorielles
+    # et retourne : (1) la table de contingence (2) la table des xi_{ij} normalisée
+
+    def table_xi_normalisee(dataset, var1, var2):
+        # table de contingence  
+        # on rajoute totaux 
+        # on remplace les NaN par 0
+        cont = dataset[[var1, var2]].pivot_table(index=var1, columns=var2, 
+                                                 aggfunc=len,
+                                                 margins=True, margins_name="Total").fillna(0) 
+
+        tx = cont.loc[:,["Total"]]         # total en colonne
+        ty = cont.loc[["Total"],:]         # total\sum_j (\hat{y_j} - \bar y)^2 en ligne
+        n = len(dataset)                   # effectif total
+        indep = tx.dot(ty) / n             # produit des deux totaux divisé par l'effectif total  𝑛_𝑖. * 𝑛_.𝑗 / 𝑛  
+        
+        measure = (cont-indep)**2/indep    # xi_{ij}
+        xi_n = measure.sum().sum()
+        table = measure/xi_n               # xi_{ij} normalisé
+    
+        return cont, table
+
+        # notons qu'on obtient des couleurs identiques que l'on prenne \x_ij ou la version normalisée
+         
+    
+    #-----------------------------------#
+    st.markdown("#### Application")
+    st.markdown("")
+    
+    var_cat1_cat2_xi = st.multiselect("Sélectionnez deux variables catégorielles( 'Code AGB', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
+                                         synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                         key="cat_1_cat2_xi") 
+    
+    if var_cat1_cat2_xi != []:
+            cat1_xi = var_cat1_cat2_xi[0]
+            cat2_xi = var_cat1_cat2_xi[1]
+            # récupérer la table de contingence et la table des xi_ij normalisée avec la fonction précédente
+            cont, table = table_xi_normalisee(synthese_dataset, cat1_xi, cat2_xi)
+            # afficher avec une heatmap 
+            fig, ax = plt.subplots()
+            sns.heatmap(table.iloc[:-1,:-1], ax=ax, annot=cont.iloc[:-1,:-1], fmt='.0f')    # on affiche toujours les effectifs, pas l'indicateur, qui est représenté par la couleur 
+                                                                                  # on enlève les colonnes des totaux
+            st.write(fig)
+            
+            st.markdown("""*Mmm ... Affichage à améliorer :confused:*""")
     
   
     
-  
-    
-  
-    
-  
 #########################################################
 if __name__=="__main__":
     main()
