@@ -441,7 +441,7 @@ def page2():
     
     #-----------------------------------#
     select_conts = st.selectbox("Sélectionnez le type de graphique",
-                                ["Scatter Matrix complète", "Scatter Matrix", "Clustermap"],
+                                ["Scatter Matrix complète", "Scatter Matrix", "Clustermap", "Parallel Coordinates Plot"],
                                 key="select_conts") 
     
     
@@ -486,6 +486,20 @@ def page2():
                              figsize=(15,15),
                              cbar_pos=(0.00, 0.9, 0.05, 0.18))
         st.pyplot(fig)
+        
+        
+    #-----------------------------------#
+    elif select_conts=="Parallel Coordinates Plot":
+        
+        var_conts_parallel = st.multiselect("Sélectionnez les variables continues (2 ou plus)", 
+                                            synthese_dataset.select_dtypes(float).drop(target,axis=1).columns, 
+                                            key="conts_parallel")
+        if var_conts_parallel !=[]:
+            fig = px.parallel_coordinates(synthese_dataset,
+                                          dimensions=var_conts_parallel, 
+                                          title='Parallel Coordinates Chart')
+            st.write(fig)
+        
         
         
         
@@ -548,6 +562,80 @@ def page2():
     #-------------------------------------------------------------------------#
     st.subheader(" Entre variables numériques et catégorielles")        
                 
+    
+    # colonnes type 'object' sans la variable cible, sans 'Nom du Produit en Français'
+    col_object_no_target = synthese_dataset.select_dtypes(object).drop('Nom du Produit en Français', axis=1).columns
+    # colonnes type 'float' sans la variable cible
+    col_float_no_target = synthese_dataset.select_dtypes(float).drop(target, axis=1).columns
+    
+    
+    
+    #-----------------------------------#
+    # choisir le type de graphique  
+    type_cont_cat = st.selectbox("Sélectionnez le type de graphique", 
+                                 ["Box plot", "Ridgeline", "Parallel categories plot"],
+                                 key="cont_cat")
+   
+   
+    
+    #-----------------------------------#
+    if type_cont_cat=="Box plot":
+        var_cont1_cat2_box = st.multiselect("Sélectionnez une variable continue, puis une variable catégorielle ('Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
+                                            synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                            key="cont_1_cat2_box")
+        if var_cont1_cat2_box != []:
+            var_cont1_box=var_cont1_cat2_box[0]
+            var_cat2_box=var_cont1_cat2_box[1]
+            fig = px.box(synthese_dataset, 
+                         x=var_cat2_box, 
+                         y=var_cont1_box,
+                         color=var_cat2_box,
+                         title="{} en fonction de {}".format(var_cont1_box, var_cat2_box))
+            fig.update_layout(boxgap=0, showlegend=False)
+            fig.update_xaxes(tickangle=45)
+            st.write(fig) 
+            
+            
+    #-----------------------------------#
+    elif type_cont_cat=="Ridgeline":
+        var_cont1_cat2_ridge = st.multiselect("Sélectionnez une variable continue, puis une variable catégorielle ('Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
+                                              synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                              key="cont_1_cat2_ridge")
+        if var_cont1_cat2_ridge !=[]:
+            var_cont1_ridge=var_cont1_cat2_ridge[0]
+            var_cat2_ridge=var_cont1_cat2_ridge[1]
+            fig = px.violin(synthese_dataset, 
+                            x=var_cont1_ridge, 
+                            y=var_cat2_ridge,
+                            orientation='h', 
+                            color=var_cat2_ridge,
+                            title="{} en fonction de {}".format(var_cont1_ridge, var_cat2_ridge))
+            fig.update_traces(side='positive', width=2)
+            fig.update_layout(showlegend=False) 
+            st.write(fig)  
+            
+            
+            
+    #-----------------------------------#
+    if type_cont_cat=="Parallel categories plot":
+        var_cont1_cat2_parallel = st.multiselect("Sélectionnez une variable continue, puis une variable catégorielle ('Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
+                                                 synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                                 key="cont_1_ca2_parallel")  
+        
+        if var_cont1_cat2_parallel !=[]:
+            var_cont1_parallel=var_cont1_cat2_parallel[0]
+            var_cat2_parallel=var_cont1_cat2_parallel[1]
+            
+            fig = px.parallel_categories(synthese_dataset, dimensions=[var_cat2_parallel], 
+                                         color=var_cont1_parallel, 
+                                         color_continuous_scale=px.colors.diverging.Tealrose, 
+                                         color_continuous_midpoint=3)
+            st.write(fig)
+          
+            
+    
+    
+    
 #########################################################
 if __name__=="__main__":
     main()
