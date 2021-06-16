@@ -165,8 +165,9 @@ def page2():
     synthese_dataset = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
     st.write(synthese_dataset)
     
-    #-------------------------------------------------------------------------#
-    #-------------------------------------------------------------------------#
+    
+    #*************************************************************************#
+    #*************************************************************************#
     st.header("1e niveau d'exploration")
     
     #------------------------------------#
@@ -216,8 +217,8 @@ def page2():
     
     
     
-    #-------------------------------------------------------------------------#
-    #-------------------------------------------------------------------------#
+    #*************************************************************************#
+    #*************************************************************************#
     st.header("2e niveau d'exploration")
     
     
@@ -424,8 +425,8 @@ def page2():
             
             
             
-    #-------------------------------------------------------------------------#
-    #-------------------------------------------------------------------------#
+    #*************************************************************************#
+    #*************************************************************************#
     st.header("3e niveau d'exploration")
     
             
@@ -573,7 +574,7 @@ def page2():
     #-----------------------------------#
     # choisir le type de graphique  
     type_cont_cat = st.selectbox("Sélectionnez le type de graphique", 
-                                 ["Box plot", "Ridgeline", "Parallel categories plot"],
+                                 ["Box plot", "Ridgeline", "Parallel categories plot", "(option) Treemap"],
                                  key="cont_cat")
    
    
@@ -617,7 +618,7 @@ def page2():
             
             
     #-----------------------------------#
-    if type_cont_cat=="Parallel categories plot":
+    elif type_cont_cat=="Parallel categories plot":
         var_cont1_cat2_parallel = st.multiselect("Sélectionnez une variable continue, puis une variable catégorielle ('Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
                                                  synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
                                                  key="cont_1_ca2_parallel")  
@@ -633,9 +634,43 @@ def page2():
             st.write(fig)
           
             
+    #-----------------------------------#
+    elif type_cont_cat=="(option) Treemap":
+        var_cont1_cat2_cat3_tree = st.multiselect("Sélectionnez une variable continue, puis deux variables catégorielles ('Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
+                                                  synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                                  key="cont_1_cat2_cat_3_tree")
+        
+        if var_cont1_cat2_cat3_tree !=[]:
+            cont1_tree = var_cont1_cat2_cat3_tree[0]
+            cat2_tree = var_cont1_cat2_cat3_tree[1]
+            cat3_tree = var_cont1_cat2_cat3_tree[2]
+
+            fig = px.treemap(synthese_dataset,
+                             path=[cat2_tree,cat3_tree],
+                             values=cont1_tree,
+                             color=cont1_tree,
+                             title="Treemap (proportions et couleurs avec la variable continue)")
+            st.write(fig) 
+            
+            st.markdown("""*Mmm ... Valeurs bizarres, paramétrage à vérifier :confused:*""")
     
     
+    #*************************************************************************#
+    #*************************************************************************#
+    st.header("4e niveau d'exploration")
     
+    st.markdown("Après une analyse essentiellement graphique, nous complétons par quelques statistiques. ")
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
 #########################################################
 if __name__=="__main__":
     main()
