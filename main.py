@@ -53,7 +53,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import *
 # model selection 
 from sklearn.model_selection import learning_curve, validation_curve
-
+# feature selection
+from sklearn.feature_selection import VarianceThreshold, SelectKBest
 
 ##############################################################################
 ##############################################################################
@@ -156,7 +157,19 @@ def page1():
      
                 """
                 )
-   #           * de déterminer des clusters de produits.
+    
+    #-------------------------------------------------------------------------#
+    st.header("Qu'est-ce que le DQR ?")
+    st.markdown("""
+                Une note de qualité - le **Data Quality Ratio (DQR)** - de 1, très bon, à 5, 
+                très mauvais - est associée à chaque produit agricole et alimentaire pour 
+                lequel Agribalyse fournit des inventaires de cycle de vie et des 
+                indicateurs d’impacts. La Commission Européenne recommande de la 
+                prudence dans l’utilisation des données avec des DQR supérieurs à 3. 
+                Dans la base de données AGRIBALYSE, 67 % des données ont un DQR jugé bon 
+                ou très bon (1 à 3).
+                """
+                )
                 
                 
 #==============================   Page 2  ====================================#
@@ -896,7 +909,11 @@ def page3():
     data_original = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
     st.write(data_original)
 
-     
+    #----------------------------------#
+    # Créer une copie pour les modifications
+    data_original_copy = data_original.copy()
+
+
     #*************************************************************************#
     #*************************************************************************#
     st.header("Pré-traitement des données")
@@ -915,88 +932,89 @@ def page3():
         st.markdown("*Format des données*")
         st.write(train_set.shape)
 
-    #----------------------------------#
-    st.subheader("Feature selection simple")
+        #----------------------------------#
+        st.subheader("Feature selection simple")
     
-    var_to_delete_simple = st.multiselect("Sélectionnez les variables à supprimer", 
-                                         data_original.columns,
-                                         key="var_to_delete_simple ") 
-    
-    if var_to_delete_simple !=[]:
-        train_set_modif_1 = train_set.drop(var_to_delete_simple, axis=1)
-        st.write(train_set_modif_1)
+        var_to_delete_simple = st.multiselect("Sélectionnez les variables à supprimer", 
+                                              data_original.columns,
+                                              key="var_to_delete_simple ") 
+        if var_to_delete_simple !=[]:
+            data_original_copy = train_set.drop(var_to_delete_simple, axis=1)
+            st.write(data_original_copy)
 
-    #----------------------------------#
-    st.subheader("Encodage des variables catégorielles")
-    
-    encoding_mth = st.selectbox("Sélectionnez la méthode d'encodage", 
-                                  ["Label Encoding", "One-Hot Encoding","Binary Encoding"],
-                                  key="encoding_mth") 
-    
-    
-    if encoding_mth != None:
-        # liste des colonnes type 'object'
-        col_object = train_set_modif_1.select_dtypes(object).columns
-        # créer une copie des données
-        train_set_modif_1_encoded = train_set_modif_1.copy()
+        #----------------------------------#
+        st.subheader("Encodage des variables catégorielles")
         
-        if encoding_mth=="Label Encoding":
-            # créer l'encodeur
-            label_encoder = LabelEncoder()
-            for col in col_object:
-                train_set_modif_1_encoded[col] = label_encoder.fit_transform(train_set_modif_1_encoded[col])
-            
-            # afficher le nouveau dataset
-            st.markdown("*Train set après Label Encoding*")
-            st.write(train_set_modif_1_encoded)
-            
-        elif encoding_mth=="One-Hot Encoding":
-            # créer l'encodeur
-            OH_encoder = OneHotEncoder(sparse=False)
-            
-            # appliquer l'encodeur : cela retourne un array
-            OH_array = OH_encoder.fit_transform(train_set_modif_1_encoded[col_object])
-            # transformer en dataframe + rajouter les noms de colonnes
-            OH_df = pd.DataFrame(OH_array)
-            # remettre les bons index
-            OH_df.index = train_set_modif_1_encoded.index
-            # supprimer les colonnes 'object' du dataset initial
-            df_initial_num = train_set_modif_1_encoded.drop(col_object, axis=1)
-            # concaténer les deux dataframe
-            train_set_modif_1_encoded = pd.concat([df_initial_num,OH_df], axis=1)
-            # afficher le nouveau dataset
-            st.markdown("*Train set après One-Hot Encoding*")
-            st.write(train_set_modif_1_encoded)
-            
-        else:
-            # créer l'encodeur : on précise les colonnes à encoder
-            binary_encoder = ce.BinaryEncoder(cols=col_object)
-            # appliquer l'encodeur à nos données
-            train_set_modif_1_encoded = binary_encoder.fit_transform(train_set_modif_1_encoded)
-            # afficher le nouveau dataset
-            st.markdown("*Train set après Binary Encoding*")
-            st.write(train_set_modif_1_encoded)
-            
-            
-    #----------------------------------#
-    st.subheader("Données manquantes")
-
-    st.write("Il n'y a aucune donnée manquante.")
-    st.write(pd.DataFrame(train_set_modif_1_encoded.isna().sum()))
-            
-            
-    #----------------------------------#
-    st.subheader("Créer X_train et y_train")
+        encoding_mth = st.selectbox("Sélectionnez la méthode d'encodage", 
+                                    ["Label Encoding", "One-Hot Encoding","Binary Encoding"],
+                                    key="encoding_mth") 
     
     
-    agree_separate_X_y = st.checkbox('Valider cette étape',
-                                     key="separate_X_y")
+        if encoding_mth != None:
+            # liste des colonnes type 'object'
+            col_object = data_original_copy.select_dtypes(object).columns
+            
+            if encoding_mth=="Label Encoding":
+                # créer l'encodeur
+                label_encoder = LabelEncoder()
+                for col in col_object:
+                    data_original_copy[col] = label_encoder.fit_transform(data_original_copy[col])
+        
+                # afficher le nouveau dataset
+                st.markdown("*Train set après Label Encoding*")
+                st.write(data_original_copy)
+            
+            elif encoding_mth=="One-Hot Encoding":
+                # créer l'encodeur
+                OH_encoder = OneHotEncoder(sparse=False)
+                
+                # appliquer l'encodeur : cela retourne un array
+                OH_array = OH_encoder.fit_transform(data_original_copy[col_object])
+                # transformer en dataframe + rajouter les noms de colonnes
+                OH_df = pd.DataFrame(OH_array)
+                # remettre les bons index
+                OH_df.index = data_original_copy.index
+                # supprimer les colonnes 'object' du dataset initial
+                df_initial_num = data_original_copy.drop(col_object, axis=1)
+                # concaténer les deux dataframe
+                data_original_copy = pd.concat([df_initial_num,OH_df], axis=1)
+                # afficher le nouveau dataset
+                st.markdown("*Train set après One-Hot Encoding*")
+                st.write(data_original_copy)
+            
+            elif encoding_mth=="Binary Encoding":
+                # créer l'encodeur : on précise les colonnes à encoder
+                binary_encoder = ce.BinaryEncoder(cols=col_object)
+                # appliquer l'encodeur à nos données
+                data_original_copy = binary_encoder.fit_transform(data_original_copy)
+                # afficher le nouveau dataset
+                st.markdown("*Train set après Binary Encoding*")
+                st.write(data_original_copy)
+            
+            
+        #----------------------------------#
+        st.subheader("Données manquantes")
+            
+        st.write("Il n'y a aucune donnée manquante.")
+        st.write(pd.DataFrame(data_original_copy.isna().sum()))
+            
+            
+        #----------------------------------#
+        st.subheader("Créer X_train et y_train")
+    
+        
+        agree_separate_X_y = st.checkbox('Valider cette étape',
+                                         key="separate_X_y")
 
-    if agree_separate_X_y:
-        target = "DQR - Note de qualité de la donnée (1 excellente ; 5 très faible)"
-        X_train = train_set_modif_1_encoded.drop(target,axis=1)
-        y_train = train_set_modif_1_encoded[target]
-        st.write('Ok !')
+        if agree_separate_X_y:
+            target = "DQR - Note de qualité de la donnée (1 excellente ; 5 très faible)"
+            X_train = data_original_copy.drop(target,axis=1)
+            y_train = data_original_copy[target]
+            st.markdown("*X_train*")
+            st.write(X_train)
+            st.markdown("*Format des données*")
+            st.write(X_train.shape)
+            st.write('Ok !')
      
         
      
@@ -1139,51 +1157,149 @@ def page3():
             #----------------------------------#
             st.write('#### Hyperparamètres')
             alpha_ridge = st.slider("Sélectionner alpha",
-                                    min_value=0,
-                                    max_value=10, 
-                                    value=1,
+                                    min_value=0.0,
+                                    max_value=10.0, 
+                                    step=0.01,
+                                    value=1.0,
                                     key="alpha_ridge")
+            # definir le modèle 
+            model_lin_ridge = Ridge(alpha=alpha_ridge)
+            # refit avec le nouveau Ridge()
+            model_lin_ridge.fit(X_train,y_train)
             
-            
+            #-----------------#
             agree_reevaluate_ridge = st.checkbox('Réevaluer le modèle ?',
                                                  key="reevaluate_ridge")
             
             if agree_reevaluate_ridge:
-                 # definir le modèle 
-                model_lin_ridge = Ridge(alpha=alpha_ridge)
-                model_lin_ridge.fit(X_train,y_train)
                 for j,sc in enumerate(scoring_list):
                     st.write('Ridge', metric_name[j])
                     evaluation(model_lin_ridge, 
                                X_train, y_train,
                                c_v,
                                scoring=sc)
+            #-----------------#
                     
             #----------------------------------#
             st.write('#### Feature Selection')
             
+            feature_selection_list = st.multiselect("Sélectionnez la méthode", 
+                                                    ['VarianceThreshold'],
+                                                    key="feature_selection_list")
+            
+            if feature_selection_list !=[]:
+                for mth in feature_selection_list:
+                    if mth=='VarianceThreshold':
+                        # choisir le paramètre 'threshold'
+                        var_threshold = st.slider("Sélectionner le 'threshold'", 
+                                                  min_value=0.0, max_value=1.0,
+                                                  step=0.01,
+                                                  value=0.0,
+                                                  key="var_threshold")
+                        # définir le selector
+                        selector = VarianceThreshold(threshold=var_threshold)
+                        # appliquer le selector aux données 'X_train'
+                        # output : array
+                        # on transforme en dataframe, en récupérant les noms de colonnes
+                        X_train_selected = pd.DataFrame(selector.fit_transform(X_train),
+                                                        columns = X_train.columns[selector.get_support()])
+                        # on récupère les bons index
+                        X_train_selected.index = X_train.index
+                        # remplacer ces données dans 'X_train'
+                        X_train = X_train_selected
+                        # afficher les nouvelles données
+                        st.markdown("Données avec VarianceThreshold")
+                        st.write(X_train)
+                        st.markdown("*Format des données*")
+                        st.write(X_train.shape)
+                        
+                        #-----------------#
+                        agree_reevaluate_var_threshold = st.checkbox('Réevaluer le modèle ?',
+                                                                      key="reevaluate_var_threshold")
+            
+                        if agree_reevaluate_var_threshold:
+                            # definir le modèle 
+                            model_lin_ridge = Ridge(alpha=alpha_ridge)
+                            # refit avec les nouvelles données 'X_train'
+                            model_lin_ridge.fit(X_train,y_train)
+                            # réévaluer
+                            for j,sc in enumerate(scoring_list):
+                                st.write('Ridge', metric_name[j])
+                                evaluation(model_lin_ridge, 
+                                           X_train, y_train,
+                                           c_v,
+                                           scoring=sc)
+                        #-----------------#
+                
+                
             #----------------------------------#
             st.write('#### Feature Engineering')
             
+            feature_engineering_list = st.multiselect("Sélectionner la méthode",
+                                                      ["StandardScaler"],
+                                                      key='feature_engineering')
             
+            if feature_engineering_list != []:
+                for mth in feature_engineering_list:
+                    if mth=="StandardScaler":
+                        # définition du StandardScaler
+                        scaler = StandardScaler()
+                        # colonnes à standardiser
+                        standard_columns = st.multiselect("Sélectionner les colonnes à utiliser",
+                                                      X_train.columns,
+                                                      key='standard_columns')
+                        
+                        if standard_columns !=[]:
+                            # on applique le scaler aux colonnes concernées : cela retourne un array
+                            # on le transforme en un dataframe, en rajoutant les noms de colonne perdus
+                            # on récupère les bons index (ceux de X_train)
+                            standard_array = scaler.fit_transform(X_train[standard_columns])
+                            df_standardized = pd.DataFrame(standard_array, columns=standard_columns)
+                            df_standardized.index = X_train.index
+                            # on remplace les colonnes concernées par le dataframe précédent 'df_standardized'
+                            X_train[standard_columns] = df_standardized
+                            # afficher les nouvelles données
+                            st.write(X_train)
+                            
+                            
+                            #-----------------#
+                            agree_reevaluate_std_scaler = st.checkbox('Réevaluer le modèle ?',
+                                                                      key="reevaluate_std_scaler")
+            
+                            if agree_reevaluate_std_scaler:
+                                # definir le modèle 
+                                model_lin_ridge = Ridge(alpha=alpha_ridge)
+                                # refit avec les nouvelles données 'X_train'
+                                model_lin_ridge.fit(X_train,y_train)
+                                # réévaluer
+                                for j,sc in enumerate(scoring_list):
+                                    st.write('Ridge', metric_name[j])
+                                    evaluation(model_lin_ridge, 
+                                               X_train, y_train,
+                                               c_v,
+                                               scoring=sc)
+                            #-----------------#
+                
+                
             
         elif model_to_improve=='SVR':
-            st.write('ok svr')
+            st.markdown('en construction :construction:')
         else:
-            st.write('ok knn')
+            st.markdown('en construction :construction:')
     
     #*************************************************************************#
     #*************************************************************************#
     st.header("Modèle final")
-
+    st.markdown('en construction')
+    
     #----------------------------------#
     st.subheader("Fine-tuning des modèles prometteurs")
-
+    st.markdown('en construction :construction:')
 
 
     #----------------------------------#
     st.subheader("Evaluation sur le Test set")
-
+    st.markdown('en construction :construction:')
 
     #----------------------------------#
     #st.subheader("Sauvegarder le modèle")
