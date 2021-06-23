@@ -208,7 +208,12 @@ def page2():
     #-------------------------------------------------------------------------#    
     st.header("Données")
     
-    synthese_dataset = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
+    @st.cache(persist=True)
+    def load_data():
+        synthese_dataset = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
+        return synthese_dataset
+    
+    synthese_dataset=load_data()
     st.write(synthese_dataset)
     
     
@@ -898,7 +903,6 @@ def page2():
 #==============================   Page 3  ===================================#
 #============= Pré-traitement des données - premiers modèles ================#
 
-
 def page3():
     
     st.title("Pré-traitement des données - Premiers modèles - Modèle final")
@@ -906,9 +910,14 @@ def page3():
     #-------------------------------------------------------------------------#    
     st.header("Données originales")
     
-    data_original = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
+    @st.cache(persist=True)
+    def load_data_bis():
+        data_original = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
+        return data_original
+    
+    data_original=load_data_bis()
     st.write(data_original)
-
+    
     #----------------------------------#
     # Créer une copie pour les modifications
     data_original_copy = data_original.copy()
@@ -1054,7 +1063,7 @@ def page3():
     ## val_score : même chose pour les échantillons de validation
 
     # output de la fonction 'evaluation' : les learning curve (graphiques)
-
+    
     def evaluation(model, Xtrain, ytrain, cv, scoring) :    
         # utilisation de la classe 'learning_curve'
         N, train_score, val_score = learning_curve(model,            
