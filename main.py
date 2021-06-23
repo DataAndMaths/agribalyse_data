@@ -888,7 +888,7 @@ def page2():
 
 def page3():
     
-    st.title("Pré-traitement des données et Premiers modèles ")
+    st.title("Pré-traitement des données - Premiers modèles - Modèle final")
 
     #-------------------------------------------------------------------------#    
     st.header("Données originales")
@@ -1174,7 +1174,7 @@ def page3():
     
     #*************************************************************************#
     #*************************************************************************#
-    st.header("Modèle définitif")
+    st.header("Modèle final")
 
     #----------------------------------#
     st.subheader("Fine-tuning des modèles prometteurs")
