@@ -1,5 +1,9 @@
-plotly==4.14.3
-pandas==1.2.3
-streamlit==0.82.0
-matplotlib==3.3.4
-seaborn==0.11.1
+pandas
+numpy
+matplotlib
+seaborn
+plotly
+scipy
+sklearn
+category_encoders
+umap-learn
