@@ -9,12 +9,14 @@
 ##############################################################################
 import streamlit as st
 
-
+#-----------------------------------#
 # general
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+#-----------------------------------#
 # plotly
 import plotly.express as px
 import plotly.graph_objs as go
@@ -25,12 +27,33 @@ import plotly.figure_factory as ff
 import plotly.io as pio
 pio.templates.default = 'ggplot2'
 
+#-----------------------------------#
 # coefficient d'asymétrie
 from scipy.stats import skew
 
 # pour afficher les informations générales sur le dataset
 #from pandas_profiling import ProfileReport
 #from streamlit_pandas_profiling import st_profile_report
+
+#-----------------------------------#
+# scikit-learn
+## train set / test set
+from sklearn.model_selection import train_test_split
+## encoder
+import category_encoders as ce
+## preprocessing
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
+## modèles
+from sklearn.linear_model import Ridge, SGDRegressor
+from sklearn.svm import SVR
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+# metrics
+from sklearn.metrics import *
+# model selection 
+from sklearn.model_selection import learning_curve, validation_curve
+
 
 ##############################################################################
 ##############################################################################
@@ -48,7 +71,9 @@ def main():
     PAGES = {
         "Accueil": page1,
         "Exploration des données": page2,
-     #   "Prédire le DQR": page3,
+        "Prétraitement des données et Premiers modèles": page3,
+        #"Clustering" : page10
+        #"Références" : page50
     }
 
     st.sidebar.title('Navigation')
@@ -77,6 +102,11 @@ def page1():
                 " :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:"+
                 " :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:"+
                 " :tractor:  :tractor:  :tractor:")         
+    
+    st.markdown(":apple:  :apple:  :apple:  :apple:  :apple:  :apple:  :apple:  :apple:"+
+                ":apple:  :apple:  :apple:  :apple:  :apple:  :apple:  :apple:  :apple:"+
+                ":apple:  :apple:  :apple:  :apple:  :apple:  :apple:  :apple:  :apple:"+
+                ":apple:  :apple:  :apple:  :apple:")
     
     st.markdown("\U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956"+
                 " \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956  \U0001f956"+
@@ -119,11 +149,14 @@ def page1():
     #-------------------------------------------------------------------------#
     st.header("Que pouvez-vous faire avec cette petite application ? ")
     st.markdown("""
-                Dans la version actuelle, elle vous permet d'explorer les
-                données à l'aide essentiellement de Plotly  \U0001f642 .
+                Dans la version actuelle, elle vous permet 
+                * d'explorer les
+                données à l'aide essentiellement de Plotly  \U0001f642 (graphiques interactifs)
+                * de construire des modèles pour prédire le DQR en fonction de différents indicateurs.
+     
                 """
                 )
-   
+   #           * de déterminer des clusters de produits.
                 
                 
 #==============================   Page 2  ====================================#
@@ -672,19 +705,22 @@ def page2():
     * c'est un nombre compris entre 0 et 1
     * si $\eta^2$=0, il n’y a pas a priori de relation entre les variables
     * si $\eta^2$=1, il n’existe pas a priori de relation entre les variables.
-
-    [Formules](https://openclassrooms.com/fr/courses/4525266-decrivez-et-nettoyez-votre-jeu-de-donnees/4774896-analysez-une-variable-quantitative-et-une-qualitative-par-anova) :  
     """)
     
-    st.latex(r'''
+    with st.beta_expander("Compléments"):
+        st.markdown("""
+                    [Formules](https://openclassrooms.com/fr/courses/4525266-decrivez-et-nettoyez-votre-jeu-de-donnees/4774896-analysez-une-variable-quantitative-et-une-qualitative-par-anova) :  
+                        """)
+    
+        st.latex(r'''
              SCT = 
              \sum_{j} (y_{j} - \bar{y})^2
              ''')
-    st.latex(r'''
+        st.latex(r'''
              SCE = 
              \sum_j n_j (\bar{y_j} - \bar y)^2
              ''')                 
-    st.latex(r''' 
+        st.latex(r''' 
              \eta^2 =
              \frac{SCE}{SCT}
              ''')
@@ -755,7 +791,10 @@ def page2():
     * on transforme pour avoir un nombre entre 0 et 1 
     * on peut voir ce nombre comme une contribution à la non-indépendance des deux variables 
     * plus la case est claire, plus la case est source de non-indépendance.   
+    """)
     
+    with st.beta_expander("Compléments"):
+        st.markdown("""
     [Formules](https://openclassrooms.com/fr/courses/4525266-decrivez-et-nettoyez-votre-jeu-de-donnees/4775616-analysez-deux-variables-qualitatives-avec-le-chi-2) :
                 """) 
                 
@@ -774,18 +813,18 @@ def page2():
     #        (n_{ij} - \frac{n_{i.} n_{.j}}{n})^2
     #         ''')
             
-    st.latex(r'''
-             \xi_{ij} = \frac{(n_{ij} - \frac{n_{i.} n_{.j}}{n})^2}{ \frac{n_{i.} n_{.j}}{n}}
-             ''')
+        st.latex(r'''
+                 \xi_{ij} = \frac{(n_{ij} - \frac{n_{i.} n_{.j}}{n})^2}{ \frac{n_{i.} n_{.j}}{n}}
+                 ''')
             
-    st.latex(r'''
-             \xi_n = \sum_i \sum_j\xi_{ij}
-            ''')
+        st.latex(r'''
+                 \xi_n = \sum_i \sum_j\xi_{ij}
+                 ''')
             
             
-    st.latex(r'''
-             {\xi_{ij}}_{normalisé} = \frac {\xi_{ij}}{\xi_n}
-             ''')
+        st.latex(r'''
+                 {\xi_{ij}}_{normalisé} = \frac {\xi_{ij}}{\xi_n}
+                 ''')
             
   
     #-----------------------------------#
@@ -840,6 +879,315 @@ def page2():
     
   
     
+  
+    
+  
+#==============================   Page 3  ===================================#
+#============= Pré-traitement des données - premiers modèles ================#
+
+
+def page3():
+    
+    st.title("Pré-traitement des données et Premiers modèles ")
+
+    #-------------------------------------------------------------------------#    
+    st.header("Données originales")
+    
+    data_original = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
+    st.write(data_original)
+
+     
+    #*************************************************************************#
+    #*************************************************************************#
+    st.header("Pré-traitement des données")
+
+    #----------------------------------#
+    st.subheader("Création du train set et du test set")
+    
+    agree_create_train_set_test_set = st.checkbox('Valider cette étape',
+                                                  key="train_set_test_set")
+
+    if agree_create_train_set_test_set:
+        train_set, test_set = train_test_split(data_original, test_size=0.20, random_state=0)
+        st.write('Ok !')
+        st.markdown("*Train set*")
+        st.write(train_set)
+        st.markdown("*Format des données*")
+        st.write(train_set.shape)
+
+    #----------------------------------#
+    st.subheader("Feature selection simple")
+    
+    var_to_delete_simple = st.multiselect("Sélectionnez les variables à supprimer", 
+                                         data_original.columns,
+                                         key="var_to_delete_simple ") 
+    
+    if var_to_delete_simple !=[]:
+        train_set_modif_1 = train_set.drop(var_to_delete_simple, axis=1)
+        st.write(train_set_modif_1)
+
+    #----------------------------------#
+    st.subheader("Encodage des variables catégorielles")
+    
+    encoding_mth = st.selectbox("Sélectionnez la méthode d'encodage", 
+                                  ["Label Encoding", "One-Hot Encoding","Binary Encoding"],
+                                  key="encoding_mth") 
+    
+    
+    if encoding_mth != None:
+        # liste des colonnes type 'object'
+        col_object = train_set_modif_1.select_dtypes(object).columns
+        # créer une copie des données
+        train_set_modif_1_encoded = train_set_modif_1.copy()
+        
+        if encoding_mth=="Label Encoding":
+            # créer l'encodeur
+            label_encoder = LabelEncoder()
+            for col in col_object:
+                train_set_modif_1_encoded[col] = label_encoder.fit_transform(train_set_modif_1_encoded[col])
+            
+            # afficher le nouveau dataset
+            st.markdown("*Train set après Label Encoding*")
+            st.write(train_set_modif_1_encoded)
+            
+        elif encoding_mth=="One-Hot Encoding":
+            # créer l'encodeur
+            OH_encoder = OneHotEncoder(sparse=False)
+            
+            # appliquer l'encodeur : cela retourne un array
+            OH_array = OH_encoder.fit_transform(train_set_modif_1_encoded[col_object])
+            # transformer en dataframe + rajouter les noms de colonnes
+            OH_df = pd.DataFrame(OH_array)
+            # remettre les bons index
+            OH_df.index = train_set_modif_1_encoded.index
+            # supprimer les colonnes 'object' du dataset initial
+            df_initial_num = train_set_modif_1_encoded.drop(col_object, axis=1)
+            # concaténer les deux dataframe
+            train_set_modif_1_encoded = pd.concat([df_initial_num,OH_df], axis=1)
+            # afficher le nouveau dataset
+            st.markdown("*Train set après One-Hot Encoding*")
+            st.write(train_set_modif_1_encoded)
+            
+        else:
+            # créer l'encodeur : on précise les colonnes à encoder
+            binary_encoder = ce.BinaryEncoder(cols=col_object)
+            # appliquer l'encodeur à nos données
+            train_set_modif_1_encoded = binary_encoder.fit_transform(train_set_modif_1_encoded)
+            # afficher le nouveau dataset
+            st.markdown("*Train set après Binary Encoding*")
+            st.write(train_set_modif_1_encoded)
+            
+            
+    #----------------------------------#
+    st.subheader("Données manquantes")
+
+    st.write("Il n'y a aucune donnée manquante.")
+    st.write(pd.DataFrame(train_set_modif_1_encoded.isna().sum()))
+            
+            
+    #----------------------------------#
+    st.subheader("Créer X_train et y_train")
+    
+    
+    agree_separate_X_y = st.checkbox('Valider cette étape',
+                                     key="separate_X_y")
+
+    if agree_separate_X_y:
+        target = "DQR - Note de qualité de la donnée (1 excellente ; 5 très faible)"
+        X_train = train_set_modif_1_encoded.drop(target,axis=1)
+        y_train = train_set_modif_1_encoded[target]
+        st.write('Ok !')
+     
+        
+     
+    #*************************************************************************#
+    #*************************************************************************#
+    st.header("Premiers modèles")
+    
+    #----------------------------------#
+    st.subheader("Versions par défaut")
+    
+    st.markdown("""
+                * On entraîne et on évalue les modèles dans leur version par défaut.
+                * Outils :
+                    * Métriques :
+                        * MAE
+                        * RMSE
+                        * $R^2$
+                    * Learning Curve : [doc1](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.learning_curve.html?highlight=learning#sklearn.model_selection.learning_curve), [doc2](https://scikit-learn.org/stable/auto_examples/model_selection/plot_learning_curve.html#sphx-glr-auto-examples-model-selection-plot-learning-curve-py)
+                """)
+    
+    models_default_list = st.multiselect("Sélectionnez les modèles", 
+                                          ['Ridge', 'SVR', 'kNN'],
+                                         key="modeles_defaut") 
+    
+    
+    #-----------------#
+    # on définit une fonction pour tracer les Learning Curve
+    # paramètres :
+    ## model : le modèle utilisé pour l'évaluation
+    ## Xtrain, ytrain : données pour l'entraînement
+    ## cv : nombre de cross-validation
+    ## scoring : la métrique utilisé (donnée sous forme négative)
+
+    # output de 'learning curve' (il y en a 5 en tout, on n'en considère que 3 ici)
+    ## N : array des tailles des échantillons utilisées pour l'entraînement
+    ## train_score : array des scores pour chaque cross-validation, et chacun des échantillons d'entraînement 
+    ## val_score : même chose pour les échantillons de validation
+
+    # output de la fonction 'evaluation' : les learning curve (graphiques)
+
+    def evaluation(model, Xtrain, ytrain, cv, scoring) :    
+        # utilisation de la classe 'learning_curve'
+        N, train_score, val_score = learning_curve(model,            
+                                                   Xtrain, ytrain,
+                                                   cv=cv,
+                                                   scoring=scoring,
+                                                   train_sizes=np.linspace(0.05,1,10))
+    
+        if scoring in ['neg_mean_absolute_error','neg_mean_squared_error','neg_root_mean_squared_error']:
+            # tracer les learning curve
+            fig, ax = plt.subplots()
+            ax.plot(N, -train_score.mean(axis=1), label='train score')
+            ax.plot(N, -val_score.mean(axis=1), label='validation score')
+            # on rajoute une zone autour des courbes avec l'écart-type :
+            # "courbe +/- écart-type"
+            ax.fill_between(N, (-train_score).mean(axis=1) - (-train_score).std(axis=1),
+                             (-train_score).mean(axis=1) + (-train_score).std(axis=1), alpha=0.1)
+            ax.fill_between(N, (-val_score).mean(axis=1) - (-val_score).std(axis=1),
+                             (-val_score).mean(axis=1) + (-val_score).std(axis=1), alpha=0.1)
+            ax.legend()
+            #ax.xlabel("Taille de l'ensemble d'entraînement")
+            st.pyplot(fig)
+        else :
+            # tracer les learning curve
+            fig, ax = plt.subplots()
+            ax.plot(N, train_score.mean(axis=1), label='train score')
+            ax.plot(N, val_score.mean(axis=1), label='validation score')
+            # on rajoute une zone autour des courbes avec l'écart-type :
+            # "courbe +/- écart-type"
+            ax.fill_between(N, (train_score).mean(axis=1) - (train_score).std(axis=1),
+                             (train_score).mean(axis=1) + (train_score).std(axis=1), alpha=0.1)
+            ax.fill_between(N, (val_score).mean(axis=1) - (val_score).std(axis=1),
+                             (val_score).mean(axis=1) + (val_score).std(axis=1), alpha=0.1)
+            ax.legend()
+            #ax.xlabel("Taille de l'ensemble d'entraînement")
+            st.pyplot(fig)
+    #-----------------#
+    
+    #-----------------#
+    # liste des noms des modèles
+    model_name = ['Ridge', 'SVR', 'kNN']
+    # liste des scoring
+    scoring_list = ['neg_mean_absolute_error','neg_mean_squared_error','neg_root_mean_squared_error', 'r2']
+    # liste des noms des métriques
+    metric_name = ['MAE', 'MSE', 'RMSE', 'R2']
+    # taille de la cross-validation
+    c_v = 4
+    #-----------------#
+    
+    
+    #-----------------#
+    # Il faut d'abord entrainer les modèles sélectionner.
+    # Ensuite, nous allons afficher les learning curve pour chaque métrique et chaque modèle.
+    # Nous affichons les noms des métriques et des modèles utilisés en utilisant les listes 'model_name' et 'metric_name'.
+    # (difficulté à intégrer cela dans la fonction 'evaluation' ...)
+
+    if models_default_list != []:
+        for i,model in enumerate(models_default_list):
+            if model=='Ridge':
+                # definir le modèle 
+                model_lin_ridge = Ridge()
+                model_lin_ridge.fit(X_train,y_train)
+                for j,sc in enumerate(scoring_list):
+                    st.write('Ridge', metric_name[j])
+                    evaluation(model_lin_ridge, 
+                               X_train, y_train,
+                               c_v,
+                               scoring=sc)
+            elif model=='SVR':
+                # definir le modèle 
+                model_svm_svr = SVR()
+                model_svm_svr.fit(X_train,y_train)
+                for j,sc in enumerate(scoring_list):
+                    st.write('SVR', metric_name[j])
+                    evaluation(model_svm_svr, 
+                               X_train, y_train,
+                               c_v,
+                               scoring=sc)
+            
+            elif model=='kNN':
+                # definir le modèle 
+                model_knn_reg = KNeighborsRegressor()
+                model_knn_reg.fit(X_train,y_train)
+                for j,sc in enumerate(scoring_list):
+                    st.write('SVR', metric_name[j])
+                    evaluation(model_knn_reg, 
+                               X_train, y_train,
+                               c_v,
+                               scoring=sc)
+    
+    #----------------------------------#
+    st.subheader("Tentatives d'amélioration des modèles")
+    # sélectionner un modèle + list selector pour hyperparamètres + feature enginerring + feature selection en pipelen ?
+    model_to_improve = st.selectbox("Sélectionnez un modèle de travail", 
+                                          ['Ridge', 'SVR', 'kNN'],
+                                         key="models_to_improve")
+    
+    if model_to_improve != None :
+        if model_to_improve=='Ridge':
+            #----------------------------------#
+            st.write('#### Hyperparamètres')
+            alpha_ridge = st.slider("Sélectionner alpha",
+                                    min_value=0,
+                                    max_value=10, 
+                                    value=1,
+                                    key="alpha_ridge")
+            
+            
+            agree_reevaluate_ridge = st.checkbox('Réevaluer le modèle ?',
+                                                 key="reevaluate_ridge")
+            
+            if agree_reevaluate_ridge:
+                 # definir le modèle 
+                model_lin_ridge = Ridge(alpha=alpha_ridge)
+                model_lin_ridge.fit(X_train,y_train)
+                for j,sc in enumerate(scoring_list):
+                    st.write('Ridge', metric_name[j])
+                    evaluation(model_lin_ridge, 
+                               X_train, y_train,
+                               c_v,
+                               scoring=sc)
+                    
+            #----------------------------------#
+            st.write('#### Feature Selection')
+            
+            #----------------------------------#
+            st.write('#### Feature Engineering')
+            
+            
+            
+        elif model_to_improve=='SVR':
+            st.write('ok svr')
+        else:
+            st.write('ok knn')
+    
+    #*************************************************************************#
+    #*************************************************************************#
+    st.header("Modèle définitif")
+
+    #----------------------------------#
+    st.subheader("Fine-tuning des modèles prometteurs")
+
+
+
+    #----------------------------------#
+    st.subheader("Evaluation sur le Test set")
+
+
+    #----------------------------------#
+    #st.subheader("Sauvegarder le modèle")
+
 #########################################################
 if __name__=="__main__":
     main()
