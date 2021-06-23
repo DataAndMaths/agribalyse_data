@@ -71,7 +71,7 @@ def main():
     PAGES = {
         "Accueil": page1,
         "Exploration des données": page2,
-        "Prétraitement des données et Premiers modèles": page3,
+        "Prétraitement des données - Premiers modèles - Modèle final": page3,
         #"Clustering" : page10
         #"Références" : page50
     }
