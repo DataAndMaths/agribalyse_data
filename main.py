@@ -1299,7 +1299,7 @@ def page3():
     #*************************************************************************#
     #*************************************************************************#
     st.header("Modèle final")
-    st.markdown('en construction')
+    st.markdown('en construction :construction:')
     
     #----------------------------------#
     st.subheader("Fine-tuning des modèles prometteurs")
