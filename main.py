@@ -208,7 +208,7 @@ def page2():
     #-------------------------------------------------------------------------#    
     st.header("Données")
     
-    #@st.cache(persist=True)
+    @st.cache(persist=True)
     def load_data():
         synthese_dataset = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
         return synthese_dataset
@@ -910,7 +910,7 @@ def page3():
     #-------------------------------------------------------------------------#    
     st.header("Données originales")
     
-    #@st.cache(persist=True)
+    @st.cache(persist=True)
     def load_data_bis():
         data_original = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
         return data_original
