@@ -90,7 +90,7 @@ def main():
 #==============================   Page 1  ===================================#
 #===============================  Accueil  ==================================#
 def page1():
-    st.title('Agribalyse')
+    st.title('Agribalyse-Synthèse Application')
     st.write("##")
     st.write("""
              Bienvenue !  
