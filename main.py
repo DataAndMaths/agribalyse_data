@@ -1039,6 +1039,7 @@ def page3():
                 * Outils :
                     * Métriques :
                         * MAE
+                        * MSE
                         * RMSE
                         * $R^2$
                     * Learning Curve : [doc1](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.learning_curve.html?highlight=learning#sklearn.model_selection.learning_curve), [doc2](https://scikit-learn.org/stable/auto_examples/model_selection/plot_learning_curve.html#sphx-glr-auto-examples-model-selection-plot-learning-curve-py)
