@@ -55,6 +55,11 @@ from sklearn.metrics import *
 from sklearn.model_selection import learning_curve, validation_curve
 # feature selection
 from sklearn.feature_selection import VarianceThreshold, SelectKBest
+#------------------#
+# Réduction de dimension
+from sklearn.decomposition import PCA
+
+
 
 ##############################################################################
 ##############################################################################
@@ -72,6 +77,7 @@ def main():
     PAGES = {
         "Accueil": page1,
         "Exploration des données": page2,
+        "Exploration des données : \n Compléments" : page2_1,
         "Prétraitement des données - Premiers modèles - Modèle final": page3,
         #"Clustering" : page10
         #"Références" : page50
@@ -308,6 +314,40 @@ def page2():
             skew_list.append(skew(synthese_dataset[col]))
     
         st.write(pd.DataFrame(skew_list, index=var_conts_skew))
+    
+    #-----------------#
+    with st.beta_expander("Compléments"):
+        st.markdown("""
+                    Lien : [documentation scipy](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.skew.html)
+                    """)
+        st.markdown("") 
+        st.markdown("Formule :")
+        
+        st.latex(r'''
+                 \beta_1 = \frac{1}{I} \sum_{i} (\frac{x_i - \bar{x}}{s})^3
+                 ''')
+        st.markdown("""
+                    avec :
+                    * I = nombre d'observations
+                    * s : l'écart-type.
+                    """) 
+        st.markdown("") 
+        st.markdown(""" 
+                    Idées :  
+                    * on prend en compte les écarts à la moyenne
+                    * on se ramène à un écart-type de 1
+                    * l'élévation au cube conserve le signe des écarts et fait jouer un grand rôle aux valeurs extrêmes.
+                    """)   
+        st.markdown("") 
+        st.markdown(""" 
+                    Interprétation :   
+                    * si le coefficient est > 0, cela indique une distribution étalée vers la droite, avec la présence d'une queue de distribution étalée vers la droite. 
+                    * si le coefficient est < 0, cela indique une distribution étalée vers la gauche, avec la présence d'une queue de distribution étalée vers la gauche. 
+                    """)   
+    #-----------------#
+    
+    
+    
     
     
     
@@ -894,6 +934,280 @@ def page2():
             st.write(fig)
             
             st.markdown("""*Mmm ... Affichage à améliorer :confused:*""")
+    
+  
+    
+  
+    
+  
+    
+  
+  
+    
+#==============================   Page 2_1  ===================================#
+#===============================  Explorations : compléments  ==================================#
+def page2_1(): 
+    st.title("Exploration de données : Compléments")
+    st.markdown("""
+                Voici quelques outils supplémentaires pour analyser les données. 
+                """)
+      
+    #*************************************************************************#
+    #*************************************************************************#
+    st.header("Données")
+    
+    @st.cache(persist=True)
+    def load_data():
+        data = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
+        return data
+    
+    data_original=load_data()
+    st.write(data_original)
+  
+    
+    #*************************************************************************#
+    #*************************************************************************#
+    st.markdown("")
+    st.markdown("")
+    st.header("Préparation des données")
+    st.markdown("Il faut préparer les données un minimum pour pourvoir appliquer certains algorithmes.")
+    
+    #----------------------------------#
+    # Créer une copie pour les modifications
+    data_original_copy = data_original.copy()
+
+
+    
+    #-------------------------------------------------------------------------#
+    st.subheader("Feature selection simple")
+    
+    var_to_delete_simple = st.multiselect("Sélectionnez les variables à supprimer", 
+                                          data_original.columns,
+                                          key="var_to_delete_simple ") 
+    if var_to_delete_simple !=[]:
+        data_original_copy = data_original_copy.drop(var_to_delete_simple, axis=1)
+        st.write(data_original_copy)
+
+    #-------------------------------------------------------------------------#
+    st.subheader("Encodage des variables catégorielles")
+        
+    encoding_mth = st.selectbox("Sélectionnez la méthode d'encodage", 
+                                ["Label Encoding", "One-Hot Encoding","Binary Encoding"],
+                                key="encoding_mth") 
+    
+    
+    if encoding_mth != None:
+        # liste des colonnes type 'object'
+        col_object = data_original_copy.select_dtypes(object).columns
+            
+        if encoding_mth=="Label Encoding":
+            # créer l'encodeur
+            label_encoder = LabelEncoder()
+            for col in col_object:
+                data_original_copy[col] = label_encoder.fit_transform(data_original_copy[col])
+        
+            # afficher le nouveau dataset
+            st.markdown("*Données après Label Encoding*")
+            st.write(data_original_copy)
+            
+        elif encoding_mth=="One-Hot Encoding":
+            # créer l'encodeur
+            OH_encoder = OneHotEncoder(sparse=False)
+                
+            # appliquer l'encodeur : cela retourne un array
+            OH_array = OH_encoder.fit_transform(data_original_copy[col_object])
+            # transformer en dataframe + rajouter les noms de colonnes
+            OH_df = pd.DataFrame(OH_array)
+            # remettre les bons index
+            OH_df.index = data_original_copy.index
+            # supprimer les colonnes 'object' du dataset initial
+            df_initial_num = data_original_copy.drop(col_object, axis=1)
+            # concaténer les deux dataframe
+            data_original_copy = pd.concat([df_initial_num,OH_df], axis=1)
+            # afficher le nouveau dataset
+            st.markdown("*Données après One-Hot Encoding*")
+            st.write(data_original_copy)
+            
+        elif encoding_mth=="Binary Encoding":
+            # créer l'encodeur : on précise les colonnes à encoder
+            binary_encoder = ce.BinaryEncoder(cols=col_object)
+            # appliquer l'encodeur à nos données
+            data_original_copy = binary_encoder.fit_transform(data_original_copy)
+            # afficher le nouveau dataset
+            st.markdown("*Données après Binary Encoding*")
+            st.write(data_original_copy)
+            
+            
+        #----------------------------------#
+        st.subheader("Données manquantes")
+            
+        st.write("Il n'y a aucune donnée manquante.")
+        st.write(pd.DataFrame(data_original_copy.isna().sum()))
+   
+  
+    #*************************************************************************#
+    #*************************************************************************#
+    st.markdown("")
+    st.markdown("")
+    st.header("Analyse en Composantes Principales (ACP)")
+    st.markdown("Il s'agit d'une méthode de réduction de dimension.")
+    
+    
+    #-------------------------------------------------------------------------#
+    pca_full_or_not = st.radio("Voulez-vous effectuer une ACP sur toutes les colonnes ?",
+                               ["Oui","Non"],
+                               key="pca_full_or_not")
+    
+    #---------------------------------#
+    if pca_full_or_not == "Oui":
+        # on définit un modèle de PCA
+        pca = PCA()
+        # on réduit le nombre de dimension avec le PCA sur toutes les colonnes
+        X_new = pca.fit_transform(data_original_copy)
+
+        #---------------------------------#
+        st.markdown("### Visualisation en 2D : Scatter Matrix")
+        # dictionnaire pour les labels pour le scatter matrix 
+        labels = {
+                str(i): f"PC {i+1} ({var:.1f}%)"
+                for i, var in enumerate(pca.explained_variance_ratio_* 100)
+                }
+        #----------------#
+        # nombre de composantes à afficher
+        n_components_pca_full = st.slider("Choisir le nombre de composantes à afficher",
+                                          min_value=2, max_value=6,
+                                          value=2,
+                                          key="n_components_pca_full"
+                                         )
+        
+        # variable à utiliser pour la couleur
+        var_for_color_pca_full = st.selectbox("Choisir une variable pour colorer les points", 
+                                              data_original_copy.columns,
+                                              key="var_for_color_pca_full"
+                                              )
+        
+        #----------------#
+        # afficher le scatter matrix 
+      
+        fig = px.scatter_matrix(X_new,
+                                labels=labels,
+                                dimensions=range(n_components_pca_full),
+                                color=data_original_copy[var_for_color_pca_full],
+                                color_continuous_scale=px.colors.diverging.Fall
+                                )
+        
+        fig.update_traces(diagonal_visible=False,
+                          marker=dict(size=4),
+                          opacity=0.4
+                         ) 
+        
+        st.write(fig)
+        
+        
+        
+        #---------------------------------#
+        st.markdown("### Visualisation en 2D : Scatter Plot")
+        st.markdown("""
+                    On affiche les deux premières composantes principales.  
+                    On garde la même variable de couleur qu'au-dessus.
+                    """)
+        
+        
+        # variable à utiliser pour la couleur
+        #var_for_color_pca_full = st.selectbox("Choisir une variable pour colorier les points", 
+         #                                     data_original_copy.columns,
+          #                                    key="var_for_color_pca_full"
+           #                                   )
+        
+        # variances expliquées
+        var_comp1 = pca.explained_variance_ratio_[0]*100
+        var_comp2 = pca.explained_variance_ratio_[1]*100
+        var_expl_1_2 = var_comp1 + var_comp2
+
+        fig = px.scatter(x=X_new[:,0], y=X_new[:,1], 
+                         labels={'x': "PC 1 ({}%)".format(round(pca.explained_variance_ratio_[0]*100,1)),
+                                 'y': "PC 2 ({}%)".format(round(pca.explained_variance_ratio_[1]*100,1)),  
+                                 },
+                         color=data_original_copy[var_for_color_pca_full],
+                         color_continuous_scale=px.colors.diverging.Fall,
+                         title=f'Variance expliquée: {var_expl_1_2:.2f}%'
+                         )
+        fig.update_traces(marker=dict(size=15),
+                          opacity=0.5,
+                          )
+        st.write(fig)
+        
+        
+        
+        #---------------------------------#
+        st.markdown("### Visualisation en 3D : Scatter Plot")
+        
+        st.markdown("""
+                    On affiche les trois premières composantes principales.  
+                    On garde la même variable de couleur qu'au-dessus.
+                    """)
+        
+        # variable à utiliser pour la couleur
+        #var_for_color_pca_full = st.selectbox("Choisir une variable pour colorier les points", 
+         #                                     data_original_copy.columns,
+          #                                    key="var_for_color_pca_full"
+           #                                   )
+        
+        # variances expliquées
+        var_comp1 = pca.explained_variance_ratio_[0]*100
+        var_comp2 = pca.explained_variance_ratio_[1]*100
+        var_comp3 = pca.explained_variance_ratio_[2]*100
+        var_expl_1_2_3 = var_comp1 + var_comp2 + var_comp3
+
+        fig = px.scatter_3d(x=X_new[:,0], y=X_new[:,1], z=X_new[:,2],
+                            labels={'x': "PC 1 ({}%)".format(round(pca.explained_variance_ratio_[0]*100,1)),
+                                    'y': "PC 2 ({}%)".format(round(pca.explained_variance_ratio_[1]*100,1)),
+                                    'z': "PC 3 ({}%)".format(round(pca.explained_variance_ratio_[2]*100,1)),
+                                    },
+                            color=data_original_copy[var_for_color_pca_full],
+                            color_continuous_scale=px.colors.diverging.Fall,
+                            title=f'Variance expliquée: {var_expl_1_2_3:.2f}%'
+                            )
+        fig.update_traces(marker=dict(size=8),
+                          opacity=0.5,
+                          )
+        st.write(fig)
+        
+
+        
+        #st.markdown("### Variance expliquée")
+
+        
+    #---------------------------------#    
+    else:
+        var_to_avoid_pca_partial = st.multiselect("Choisir les variables à ne pas prendre en compte" , 
+                                                  data_original_copy.columns,
+                                                  key="var_to_avoid_pca_partial")
+         
+        
+        
+        
+        
+    
+    #-------------------------------------------------------------------------#
+    #n_components_pca = st.slider("Choisir le nombre de composantes",
+     #                            min_value=2, max_value=len(data_original_copy.columns),
+      #                           value=2,
+       #                          key="n_components_pca"
+        #                         )
+    
+    
+    
+  
+    
+  
+    
+  
+    
+  
+    
+    
+  
     
   
     
