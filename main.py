@@ -27,6 +27,7 @@ import plotly.figure_factory as ff
 import plotly.io as pio
 pio.templates.default = 'ggplot2'
 
+
 #-----------------------------------#
 # coefficient d'asymétrie
 from scipy.stats import skew
@@ -83,7 +84,7 @@ def main():
         #"Références" : page50
     }
 
-    st.sidebar.title('Navigation')
+    st.sidebar.title('Navigation 🧭')
     page = st.sidebar.radio("", list(PAGES.keys()))
     PAGES[page]()
     
@@ -993,7 +994,7 @@ def page2_1():
 
     
     #-------------------------------------------------------------------------#
-    st.subheader("Feature selection simple")
+    st.subheader("Feature selection simple 🗑️")
     
     var_to_delete_simple = st.multiselect("Sélectionnez les variables à supprimer", 
                                           data_original.columns,
@@ -1114,7 +1115,7 @@ def page2_1():
                           marker=dict(size=4),
                           opacity=0.4
                          ) 
-        
+    
         st.write(fig)
         
         
@@ -1146,7 +1147,7 @@ def page2_1():
                          color_continuous_scale=px.colors.diverging.Fall,
                          title=f'Variance expliquée: {var_expl_1_2:.2f}%'
                          )
-        fig.update_traces(marker=dict(size=15),
+        fig.update_traces(marker=dict(size=10),
                           opacity=0.5,
                           )
         st.write(fig)
@@ -1282,7 +1283,7 @@ def page3():
         st.write(train_set.shape)
 
         #----------------------------------#
-        st.subheader("Feature selection simple")
+        st.subheader("Feature selection simple 🗑️")
     
         var_to_delete_simple = st.multiselect("Sélectionnez les variables à supprimer", 
                                               data_original.columns,
@@ -1496,7 +1497,7 @@ def page3():
                                scoring=sc)
     
     #----------------------------------#
-    st.subheader("Tentatives d'amélioration des modèles")
+    st.subheader("Tentatives d'amélioration des modèles 🎛️")
     # sélectionner un modèle + list selector pour hyperparamètres + feature enginerring + feature selection en pipelen ?
     model_to_improve = st.selectbox("Sélectionnez un modèle de travail", 
                                           ['Ridge', 'SVR', 'kNN'],
