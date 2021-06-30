@@ -299,7 +299,8 @@ def page2():
     fig = px.histogram(synthese_dataset, x=var_cont, nbins=number_bins,
                        histnorm='probability',
                        marginal='box',
-                       title='Histogramme de la variable {}'.format(var_cont))
+                       title='Histogramme de la variable {}'.format(var_cont),
+                       color_discrete_sequence=["#748726"])
     st.write(fig)
     
     #-----------------------------------#
@@ -359,7 +360,8 @@ def page2():
                               index=1)   # variable affichée par defaut
     
     fig = px.histogram(synthese_dataset, x=var_cat,
-                       title='Distribution de la variable {}'.format(var_cat))
+                       title='Distribution de la variable {}'.format(var_cat),
+                       color_discrete_sequence=["#748726"])
     fig.update_xaxes(categoryorder="total descending")
     st.write(fig)
 
@@ -393,7 +395,8 @@ def page2():
         if var_cont_scatter_mat !=():
             fig = px.scatter_matrix(synthese_dataset,
                                     dimensions=[target,var_cont_scatter_mat], 
-                                    title='Scatter Matrix')
+                                    title='Scatter Matrix',
+                                    color_continuous_scale=px.colors.diverging.Fall)
             # taille markers
             fig.update_traces(marker=dict(size=1))
             # enlever ou réduire les labels, valeurs, ticks qui rendent illisibles
@@ -414,7 +417,8 @@ def page2():
         if var_cont_parallel !=[]:
             fig = px.parallel_coordinates(synthese_dataset,
                                           dimensions=[target,var_cont_parallel], 
-                                          title='Parallel Coordinates Chart')
+                                          title='Parallel Coordinates Chart',
+                                          color_continuous_scale=px.colors.diverging.Fall)
             st.write(fig)
            
     
@@ -427,7 +431,8 @@ def page2():
         if var_conts_parallel !=[]:
             fig = px.parallel_coordinates(synthese_dataset,
                                           dimensions=var_conts_parallel, 
-                                          title='Parallel Coordinates Chart')
+                                          title='Parallel Coordinates Chart',
+                                          color_continuous_scale=px.colors.diverging.Fall)
             st.write(fig)
     
     #-----------------------------------#        
@@ -462,7 +467,8 @@ def page2():
                          x=cat2_box, 
                          y=target,
                          color=cat2_box,
-                         title="Box plot")
+                         title="Box plot",
+                         color_discrete_sequence=px.colors.qualitative.Antique)
             fig.update_layout(boxgap=0, showlegend=False)
             fig.update_xaxes(tickangle=45)
             st.write(fig) 
@@ -619,7 +625,7 @@ def page2():
             cat1_h = var_cats_hist[0]
             cat2_h = var_cats_hist[1]
             fig = px.histogram(synthese_dataset, x=cat1_h, color=cat2_h, 
-                               color_discrete_sequence=px.colors.qualitative.Set3)            
+                               color_discrete_sequence=px.colors.qualitative.Antique)            
             st.write(fig)
     
     
@@ -682,7 +688,8 @@ def page2():
                          x=var_cat2_box, 
                          y=var_cont1_box,
                          color=var_cat2_box,
-                         title="{} en fonction de {}".format(var_cont1_box, var_cat2_box))
+                         title="{} en fonction de {}".format(var_cont1_box, var_cat2_box),
+                         color_discrete_sequence=px.colors.qualitative.Antique)
             fig.update_layout(boxgap=0, showlegend=False)
             fig.update_xaxes(tickangle=45)
             st.write(fig) 
@@ -701,7 +708,8 @@ def page2():
                             y=var_cat2_ridge,
                             orientation='h', 
                             color=var_cat2_ridge,
-                            title="{} en fonction de {}".format(var_cont1_ridge, var_cat2_ridge))
+                            title="{} en fonction de {}".format(var_cont1_ridge, var_cat2_ridge),
+                            color_discrete_sequence=px.colors.qualitative.Antique)
             fig.update_traces(side='positive', width=2)
             fig.update_layout(showlegend=False) 
             st.write(fig)  
@@ -720,7 +728,7 @@ def page2():
             
             fig = px.parallel_categories(synthese_dataset, dimensions=[var_cat2_parallel], 
                                          color=var_cont1_parallel, 
-                                         color_continuous_scale=px.colors.diverging.Tealrose, 
+                                         color_continuous_scale=px.colors.diverging.Fall, 
                                          color_continuous_midpoint=3)
             st.write(fig)
           
@@ -740,7 +748,9 @@ def page2():
                              path=[cat2_tree,cat3_tree],
                              values=cont1_tree,
                              color=cont1_tree,
-                             title="Treemap (proportions et couleurs avec la variable continue)")
+                             title="Treemap (proportions et couleurs avec la variable continue)",
+                             color_continuous_scale=px.colors.diverging.Fall
+                             )
             st.write(fig) 
             
             st.markdown("""*Mmm ... Valeurs bizarres, paramétrage à vérifier :confused:*""")
@@ -1173,10 +1183,22 @@ def page2_1():
                           )
         st.write(fig)
         
-
         
-        #st.markdown("### Variance expliquée")
-
+        
+        #---------------------------------#
+        st.markdown("### Variance expliquée")
+        
+        # variance expliquée cumulée
+        exp_var_cumul = np.cumsum(pca.explained_variance_ratio_)
+        
+        # afficher la courbe de la variance expliquée en fonction du nb de composantes
+        fig = px.area(x=range(1, exp_var_cumul.shape[0]+1),
+                      y=exp_var_cumul,
+                      labels={"x": "# Composantes", "y": "Variance Expliquée"},
+                      title='Variance expliquée en fonction du nombre de composantes',
+                      color_discrete_sequence=["#748726"]
+                      )
+        st.write(fig)
         
     #---------------------------------#    
     else:
