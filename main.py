@@ -396,7 +396,8 @@ def page2():
             fig = px.scatter_matrix(synthese_dataset,
                                     dimensions=[target,var_cont_scatter_mat], 
                                     title='Scatter Matrix',
-                                    color_continuous_scale=px.colors.diverging.Fall)
+                                    color_continuous_scale=px.colors.diverging.Fall,
+                                    color_discrete_sequence=px.colors.qualitative.Antique)
             # taille markers
             fig.update_traces(marker=dict(size=1))
             # enlever ou réduire les labels, valeurs, ticks qui rendent illisibles
@@ -418,7 +419,8 @@ def page2():
             fig = px.parallel_coordinates(synthese_dataset,
                                           dimensions=[target,var_cont_parallel], 
                                           title='Parallel Coordinates Chart',
-                                          color_continuous_scale=px.colors.diverging.Fall)
+                                          color_continuous_scale=px.colors.diverging.Fall
+                                          )
             st.write(fig)
            
     
@@ -561,7 +563,9 @@ def page2():
          if var_conts_scatter_mat !=():
              fig = px.scatter_matrix(synthese_dataset,
                                      dimensions=var_conts_scatter_mat, 
-                                     title='Scatter Matrix')
+                                     title='Scatter Matrix',
+                                     color_continuous_scale=px.colors.diverging.Fall,
+                                     color_discrete_sequence=px.colors.qualitative.Antique)
              # taille markers
              fig.update_traces(marker=dict(size=2.5))
              # enlever ou réduire les labels, valeurs, ticks qui rendent illisibles
