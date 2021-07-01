@@ -432,10 +432,17 @@ def page2():
                                             key="cont_parallel"
                                             )   
         if var_conts_parallel !=[]:
+            # changer les noms des labels trop longs
+            labels_long={"DQR - Note de qualité de la donnée (1 excellente ; 5 très faible)":"DQR",
+                         "Score unique EF (mPt/kg de produit)" : "Score unique EF"}
+            
+            
             fig = px.parallel_coordinates(synthese_dataset,
                                           dimensions=var_conts_parallel, 
                                           title='Parallel Coordinates Chart',
-                                          color_continuous_scale=px.colors.diverging.Fall)
+                                          color_continuous_scale=px.colors.diverging.Fall,
+                                          labels=labels_long
+                                          )
             st.write(fig)
     
     #-----------------------------------#        
@@ -487,7 +494,8 @@ def page2():
                             y=cat2_ridge,
                             orientation='h', 
                             color=cat2_ridge,
-                            title="Ridgeline".format(target, cat2_ridge))
+                            title="Ridgeline".format(target, cat2_ridge),
+                            color_discrete_sequence=px.colors.qualitative.Antique)
             fig.update_traces(side='positive', width=2)
             fig.update_layout(showlegend=False) 
             st.write(fig)  
@@ -501,7 +509,7 @@ def page2():
         if cat2_parallel !=[]:
             fig = px.parallel_categories(synthese_dataset, dimensions=[cat2_parallel], 
                                          color=target, 
-                                         color_continuous_scale=px.colors.diverging.Tealrose, 
+                                         color_continuous_scale=px.colors.diverging.Fall, 
                                          color_continuous_midpoint=3)
             st.write(fig)
     
@@ -516,7 +524,7 @@ def page2():
                              path=var_cat1_cat2_tree, 
                              values=target,
                              color=target,
-                             color_continuous_scale=px.colors.diverging.Tealrose,
+                             color_continuous_scale=px.colors.diverging.Fall,
                              color_continuous_midpoint=3,
                              title="Treemap (proportions et couleurs de la variable cible)")
             st.write(fig)
@@ -549,7 +557,9 @@ def page2():
     #-----------------------------------#
     if select_conts=="Scatter Matrix complète":
         fig = px.scatter_matrix(synthese_dataset, dimensions=col_float_no_target,
-                                title="Scatter matrix des variables numériques, sans la variable cible")
+                                title="Scatter matrix des variables numériques, sans la variable cible",
+                                color_continuous_scale=px.colors.diverging.Fall,
+                                color_discrete_sequence=px.colors.qualitative.Antique)
         fig.update_traces(marker=dict(size=1))
         fig.update_layout({"xaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+3.8)/nb_col)) for i in range(nb_col)})
         fig.update_layout({"yaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+2.2)/nb_col)) for i in range(nb_col)})
@@ -600,7 +610,8 @@ def page2():
         if var_conts_parallel !=[]:
             fig = px.parallel_coordinates(synthese_dataset,
                                           dimensions=var_conts_parallel, 
-                                          title='Parallel Coordinates Chart')
+                                          title='Parallel Coordinates Chart',
+                                          color_continuous_scale=px.colors.diverging.Fall)
             st.write(fig)
         
         
@@ -1051,13 +1062,39 @@ def page2_1():
             # afficher le nouveau dataset
             st.markdown("*Données après Binary Encoding*")
             st.write(data_original_copy)
+      
             
+    #-------------------------------------------------------------------------#
+    
+    st.subheader("Feature Engineering simple")
+     
+    # colonnes à standardiser
+    standard_columns_pca = st.multiselect("Sélectionner les colonnes à centrer-réduire",
+                                          data_original_copy.columns,
+                                          key='standard_columns_pca')
+                       
+    if standard_columns_pca !=[]:
+        # définition du StandardScaler
+        scaler = StandardScaler()
+        # on applique le scaler aux colonnes concernées : cela retourne un array
+        # on le transforme en un dataframe, en rajoutant les noms de colonne perdus
+        # on récupère les bons index (ceux de X_train)
+        standard_array = scaler.fit_transform(data_original_copy[standard_columns_pca])
+        df_standardized = pd.DataFrame(standard_array, columns=standard_columns_pca)
+        df_standardized.index = data_original_copy.index
+        # on remplace les colonnes concernées par le dataframe précédent 'df_standardized'
+        data_original_copy[standard_columns_pca] = df_standardized
+        # afficher les nouvelles données
+        st.write(data_original_copy)
+                               
             
-        #----------------------------------#
-        st.subheader("Données manquantes")
-            
-        st.write("Il n'y a aucune donnée manquante.")
-        st.write(pd.DataFrame(data_original_copy.isna().sum()))
+    #-------------------------------------------------------------------------#
+    st.subheader("Données manquantes")
+    
+    st.write("Il n'y a aucune donnée manquante.")
+    st.write(pd.DataFrame(data_original_copy.isna().sum()))
+   
+    
    
   
     #*************************************************************************#
@@ -1069,169 +1106,136 @@ def page2_1():
     
     
     #-------------------------------------------------------------------------#
-    pca_full_or_not = st.radio("Voulez-vous effectuer une ACP sur toutes les colonnes ?",
-                               ["Oui","Non"],
-                               key="pca_full_or_not")
+    st.markdown("### Visualisation en 2D")
     
-    #---------------------------------#
-    if pca_full_or_not == "Oui":
-        # on définit un modèle de PCA
-        pca = PCA()
-        # on réduit le nombre de dimension avec le PCA sur toutes les colonnes
-        X_new = pca.fit_transform(data_original_copy)
+    #------------------------------------#
+    # on définit un modèle de PCA
+    pca = PCA(n_components=2)
+    # on réduit le nombre de dimension avec le PCA
+    X_proj = pca.fit_transform(data_original_copy)
 
-        #---------------------------------#
-        st.markdown("### Visualisation en 2D : Scatter Matrix")
-        # dictionnaire pour les labels pour le scatter matrix 
-        labels = {
-                str(i): f"PC {i+1} ({var:.1f}%)"
-                for i, var in enumerate(pca.explained_variance_ratio_* 100)
-                }
-        #----------------#
-        # nombre de composantes à afficher
-        n_components_pca_full = st.slider("Choisir le nombre de composantes à afficher",
-                                          min_value=2, max_value=6,
-                                          value=2,
-                                          key="n_components_pca_full"
-                                         )
-        
-        # variable à utiliser pour la couleur
-        var_for_color_pca_full = st.selectbox("Choisir une variable pour colorer les points", 
-                                              data_original_copy.columns,
-                                              key="var_for_color_pca_full"
-                                              )
-        
-        #----------------#
-        # afficher le scatter matrix 
-      
-        fig = px.scatter_matrix(X_new,
-                                labels=labels,
-                                dimensions=range(n_components_pca_full),
-                                color=data_original_copy[var_for_color_pca_full],
-                                color_continuous_scale=px.colors.diverging.Fall
-                                )
-        
-        fig.update_traces(diagonal_visible=False,
-                          marker=dict(size=4),
-                          opacity=0.4
-                         ) 
+    #------------------------------------#
+    # dictionnaire pour les labels pour le scatter plot
+    labels = {
+        str(i): f"PC {i+1} ({var:.1f}%)"
+        for i, var in enumerate(pca.explained_variance_ratio_* 100)
+        }
+
+    # variances expliquées : pour le titre
+    var_comp1 = pca.explained_variance_ratio_[0]*100
+    var_comp2 = pca.explained_variance_ratio_[1]*100
+    var_expl_1_2 = var_comp1 + var_comp2
+
+    #-------------------------------------#
+    st.markdown("#### Nuage des variables")
     
-        st.write(fig)
-        
-        
-        
-        #---------------------------------#
-        st.markdown("### Visualisation en 2D : Scatter Plot")
-        st.markdown("""
-                    On affiche les deux premières composantes principales.  
-                    On garde la même variable de couleur qu'au-dessus.
-                    """)
-        
-        
-        # variable à utiliser pour la couleur
-        #var_for_color_pca_full = st.selectbox("Choisir une variable pour colorier les points", 
-         #                                     data_original_copy.columns,
-          #                                    key="var_for_color_pca_full"
-           #                                   )
-        
-        # variances expliquées
-        var_comp1 = pca.explained_variance_ratio_[0]*100
-        var_comp2 = pca.explained_variance_ratio_[1]*100
-        var_expl_1_2 = var_comp1 + var_comp2
+    # composantes principales
+    pc = pca.components_.T
 
-        fig = px.scatter(x=X_new[:,0], y=X_new[:,1], 
-                         labels={'x': "PC 1 ({}%)".format(round(pca.explained_variance_ratio_[0]*100,1)),
-                                 'y': "PC 2 ({}%)".format(round(pca.explained_variance_ratio_[1]*100,1)),  
-                                 },
-                         color=data_original_copy[var_for_color_pca_full],
-                         color_continuous_scale=px.colors.diverging.Fall,
-                         title=f'Variance expliquée: {var_expl_1_2:.2f}%'
-                         )
-        fig.update_traces(marker=dict(size=10),
-                          opacity=0.5,
-                          )
-        st.write(fig)
+    # afficher le nuage des variables
+    fig = px.scatter()
+    
+    ## étendue des axes 
+    fig.update_xaxes(range=[-1, 1])
+    fig.update_yaxes(range=[-1, 1])
+    
+    ## noms des axes
+    fig.update_xaxes(title="PC1")
+    fig.update_yaxes(title="PC2")
+    
+    ## on fait une boucle sur toutes les variables
+    ## à chaque fois, on affiche une ligne et le nom de la variable 
+    for i, feature in enumerate(data_original_copy.columns):
+        fig.add_shape(
+            type='line',
+            x0=0, y0=0,
+            x1=pc[i, 0],
+            y1=pc[i, 1],
+            line=dict(color="#748726",width=2)
+            )
         
-        
-        
-        #---------------------------------#
-        st.markdown("### Visualisation en 3D : Scatter Plot")
-        
-        st.markdown("""
-                    On affiche les trois premières composantes principales.  
-                    On garde la même variable de couleur qu'au-dessus.
-                    """)
-        
-        # variable à utiliser pour la couleur
-        #var_for_color_pca_full = st.selectbox("Choisir une variable pour colorier les points", 
-         #                                     data_original_copy.columns,
-          #                                    key="var_for_color_pca_full"
-           #                                   )
-        
-        # variances expliquées
-        var_comp1 = pca.explained_variance_ratio_[0]*100
-        var_comp2 = pca.explained_variance_ratio_[1]*100
-        var_comp3 = pca.explained_variance_ratio_[2]*100
-        var_expl_1_2_3 = var_comp1 + var_comp2 + var_comp3
-
-        fig = px.scatter_3d(x=X_new[:,0], y=X_new[:,1], z=X_new[:,2],
-                            labels={'x': "PC 1 ({}%)".format(round(pca.explained_variance_ratio_[0]*100,1)),
-                                    'y': "PC 2 ({}%)".format(round(pca.explained_variance_ratio_[1]*100,1)),
-                                    'z': "PC 3 ({}%)".format(round(pca.explained_variance_ratio_[2]*100,1)),
-                                    },
-                            color=data_original_copy[var_for_color_pca_full],
-                            color_continuous_scale=px.colors.diverging.Fall,
-                            title=f'Variance expliquée: {var_expl_1_2_3:.2f}%'
-                            )
-        fig.update_traces(marker=dict(size=8),
-                          opacity=0.5,
-                          )
-        st.write(fig)
-        
-        
-        
-        #---------------------------------#
-        st.markdown("### Variance expliquée")
-        
-        # variance expliquée cumulée
-        exp_var_cumul = np.cumsum(pca.explained_variance_ratio_)
-        
-        # afficher la courbe de la variance expliquée en fonction du nb de composantes
-        fig = px.area(x=range(1, exp_var_cumul.shape[0]+1),
-                      y=exp_var_cumul,
-                      labels={"x": "# Composantes", "y": "Variance Expliquée"},
-                      title='Variance expliquée en fonction du nombre de composantes',
-                      color_discrete_sequence=["#748726"]
-                      )
-        st.write(fig)
-        
-    #---------------------------------#    
-    else:
-        var_to_avoid_pca_partial = st.multiselect("Choisir les variables à ne pas prendre en compte" , 
-                                                  data_original_copy.columns,
-                                                  key="var_to_avoid_pca_partial")
-         
-        
-        
-        
+        fig.add_annotation(
+            x=pc[i, 0],
+            y=pc[i, 1],
+            ax=0, ay=0,
+            xanchor="center",
+            yanchor="bottom",
+            text=feature,
+            )   
+    st.write(fig)
+  
+   
+    #-------------------------------------#
+    st.markdown("#### Nuage des individus")
+    
+    # variable à utiliser pour la couleur
+    var_for_color_pca_2D = st.selectbox("Choisir une variable pour colorer les points", 
+                                        data_original_copy.columns,
+                                        key="var_for_color_pca_2D"
+                                        )
+    
+    # afficher le nuage des individus 
+    fig = px.scatter(X_proj, x=0, y=1,
+                     labels=labels,
+                     color=data_original[var_for_color_pca_2D],    # on colorie avec les valeurs des données non standardisées
+                     color_continuous_scale=px.colors.diverging.Fall,
+                     title=f'Variance expliquée: {var_expl_1_2:.1f}%'
+                     )
+    fig.update_traces(marker=dict(size=4),
+                      opacity=0.4
+                      ) 
+    st.write(fig)
         
     
+        
     #-------------------------------------------------------------------------#
-    #n_components_pca = st.slider("Choisir le nombre de composantes",
-     #                            min_value=2, max_value=len(data_original_copy.columns),
-      #                           value=2,
-       #                          key="n_components_pca"
-        #                         )
+    st.markdown("### Visualisation en 3D")
     
+    #------------------------------------#
+    # on définit un modèle de PCA
+    pca = PCA(n_components=3)
+    # on réduit le nombre de dimension avec le PCA
+    X_proj = pca.fit_transform(data_original_copy)
+
     
+    #------------------------------------#
+    # dictionnaire pour les labels pour le scatter plot
+    labels = {
+        str(i): f"PC {i+1} ({var:.1f}%)"
+        for i, var in enumerate(pca.explained_variance_ratio_* 100)
+        }
+
+    # variances expliquées : pour le titre
+    var_comp1 = pca.explained_variance_ratio_[0]*100
+    var_comp2 = pca.explained_variance_ratio_[1]*100
+    var_comp3 = pca.explained_variance_ratio_[2]*100
+    var_expl_1_2_3 = var_comp1 + var_comp2 + var_comp3
+
+   
+    #-------------------------------------#
+    st.markdown("#### Nuage des individus")
     
-  
+    # variable à utiliser pour la couleur
+    var_for_color_pca_3D = st.selectbox("Choisir une variable pour colorer les points", 
+                                        data_original_copy.columns,
+                                        key="var_for_color_pca_3D"
+                                        )
     
-  
+    # afficher le scatter plot
+    fig = px.scatter_3d(X_proj, x=0, y=1, z=2,
+                        labels=labels,
+                        color=data_original[var_for_color_pca_3D],  # on colorie avec les valeurs des données non standardisées
+                        color_continuous_scale=px.colors.diverging.Fall,
+                        title=f'Variance expliquée: {var_expl_1_2_3:.1f}%'
+                        )
+    fig.update_traces(marker=dict(size=7),
+                      opacity=0.4
+                      ) 
+    st.write(fig)
+        
     
-  
+        
     
-  
     
     
   
