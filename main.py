@@ -1338,7 +1338,7 @@ def page3():
                 # definir le modèle : on applique une régression linéaire, mais à 'X_train_poly'
                 model_lin_reg = LinearRegression()
                 model_lin_reg.fit(X_train_poly,y_train)
-                st.write('LinearRegression')
+                st.write('Régression Polynomiale')
                 evaluation(model_lin_reg, 
                            X_train_poly, y_train,
                            c_v)
