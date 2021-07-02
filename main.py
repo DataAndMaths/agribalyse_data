@@ -1612,7 +1612,7 @@ def page3():
     #-------------------------------------------------------------------------#
    # st.subheader("Réseaux de neurones")
     
-   caching.clear_cache() 
+    caching.clear_cache() 
     
     
     
