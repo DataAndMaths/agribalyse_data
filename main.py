@@ -8,6 +8,7 @@
 ##############################################################################
 ##############################################################################
 import streamlit as st
+from streamlit import caching
 
 #-----------------------------------#
 # general
@@ -958,7 +959,7 @@ def page2():
             st.markdown("""*Mmm ... Affichage à améliorer :confused:*""")
     
   
-    
+    caching.clear_cache()
   
     
   
@@ -1230,7 +1231,7 @@ def page2_1():
                       ) 
     st.write(fig)
     
-            
+    caching.clear_cache()        
             
         
      
@@ -1611,7 +1612,7 @@ def page3():
     #-------------------------------------------------------------------------#
    # st.subheader("Réseaux de neurones")
     
-    
+   caching.clear_cache() 
     
     
     
@@ -1620,7 +1621,7 @@ def page3():
 def page4():
     
     st.title("Prédiction du DQR : Amélioration des modèles")
-
+    caching.clear_cache()
     
 #########################################################
 if __name__=="__main__":
