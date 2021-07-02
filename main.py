@@ -1254,12 +1254,7 @@ def page3():
     #-------------------------------------------------------------------------#    
     st.header("Données originales")
     
-    @st.cache(persist=True)
-    def load_data_bis():
-        data_original = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
-        return data_original
-    
-    data_original=load_data_bis()
+    data_original=pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
     st.write(data_original)
     
     #----------------------------------#
