@@ -216,12 +216,7 @@ def page2():
     #-------------------------------------------------------------------------#    
     st.header("Données")
     
-    @st.cache(persist=True)
-    def load_data():
-        synthese_dataset = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
-        return synthese_dataset
-    
-    synthese_dataset=load_data()
+    synthese_dataset=pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
     st.write(synthese_dataset)
     
     
