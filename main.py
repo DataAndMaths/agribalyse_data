@@ -975,7 +975,129 @@ def page2():
 #==================  Explorations : Réduction de dimension  ===================#
 def page2_1(): 
     st.title("Exploration de données : Réduction de dimension")
+    
+    st.markdown("""
+                Voici quelques outils supplémentaires pour analyser les données. 
+                """)
+      
+    #*************************************************************************#
+    #*************************************************************************#
+    st.header("Données")
+    
+    @st.cache(persist=True)
+    def load_data():
+        data = pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
+        return data
+    
+    data_original=load_data()
+    st.write(data_original)
+  
+    
+    #*************************************************************************#
+    #*************************************************************************#
+    st.markdown("")
+    st.markdown("")
+    st.header("Préparation des données")
+    st.markdown("Il faut préparer les données un minimum pour pourvoir appliquer certains algorithmes.")
+    
+    #----------------------------------#
+    # Créer une copie pour les modifications
+    data_original_copy = data_original.copy()
+
+
+    
+    #-------------------------------------------------------------------------#
+    st.subheader("Feature selection simple 🗑️")
+    
+    var_to_delete_simple = st.multiselect("Sélectionnez les variables à supprimer", 
+                                          data_original.columns,
+                                          key="var_to_delete_simple ") 
+    if var_to_delete_simple !=[]:
+        data_original_copy = data_original_copy.drop(var_to_delete_simple, axis=1)
+        st.write(data_original_copy)
+
+    #-------------------------------------------------------------------------#
+    st.subheader("Encodage des variables catégorielles")
         
+    encoding_mth = st.selectbox("Sélectionnez la méthode d'encodage", 
+                                ["Label Encoding", "One-Hot Encoding","Binary Encoding"],
+                                key="encoding_mth") 
+    
+    
+    if encoding_mth != None:
+        # liste des colonnes type 'object'
+        col_object = data_original_copy.select_dtypes(object).columns
+            
+        if encoding_mth=="Label Encoding":
+            # créer l'encodeur
+            label_encoder = LabelEncoder()
+            for col in col_object:
+                data_original_copy[col] = label_encoder.fit_transform(data_original_copy[col])
+        
+            # afficher le nouveau dataset
+            st.markdown("*Données après Label Encoding*")
+            st.write(data_original_copy)
+            
+        elif encoding_mth=="One-Hot Encoding":
+            # créer l'encodeur
+            OH_encoder = OneHotEncoder(sparse=False)
+                
+            # appliquer l'encodeur : cela retourne un array
+            OH_array = OH_encoder.fit_transform(data_original_copy[col_object])
+            # transformer en dataframe + rajouter les noms de colonnes
+            OH_df = pd.DataFrame(OH_array)
+            # remettre les bons index
+            OH_df.index = data_original_copy.index
+            # supprimer les colonnes 'object' du dataset initial
+            df_initial_num = data_original_copy.drop(col_object, axis=1)
+            # concaténer les deux dataframe
+            data_original_copy = pd.concat([df_initial_num,OH_df], axis=1)
+            # afficher le nouveau dataset
+            st.markdown("*Données après One-Hot Encoding*")
+            st.write(data_original_copy)
+            
+        elif encoding_mth=="Binary Encoding":
+            # créer l'encodeur : on précise les colonnes à encoder
+            binary_encoder = ce.BinaryEncoder(cols=col_object)
+            # appliquer l'encodeur à nos données
+            data_original_copy = binary_encoder.fit_transform(data_original_copy)
+            # afficher le nouveau dataset
+            st.markdown("*Données après Binary Encoding*")
+            st.write(data_original_copy)
+      
+            
+    #-------------------------------------------------------------------------#
+    
+    st.subheader("Feature Engineering simple")
+     
+    # colonnes à standardiser
+    standard_columns_pca = st.multiselect("Sélectionner les colonnes à centrer-réduire",
+                                          data_original_copy.columns,
+                                          key='standard_columns_pca')
+                       
+    if standard_columns_pca !=[]:
+        # définition du StandardScaler
+        scaler = StandardScaler()
+        # on applique le scaler aux colonnes concernées : cela retourne un array
+        # on le transforme en un dataframe, en rajoutant les noms de colonne perdus
+        # on récupère les bons index (ceux de X_train)
+        standard_array = scaler.fit_transform(data_original_copy[standard_columns_pca])
+        df_standardized = pd.DataFrame(standard_array, columns=standard_columns_pca)
+        df_standardized.index = data_original_copy.index
+        # on remplace les colonnes concernées par le dataframe précédent 'df_standardized'
+        data_original_copy[standard_columns_pca] = df_standardized
+        # afficher les nouvelles données
+        st.write(data_original_copy)
+                               
+            
+    #-------------------------------------------------------------------------#
+    st.subheader("Données manquantes")
+    
+    st.write("Il n'y a aucune donnée manquante.")
+    st.write(pd.DataFrame(data_original_copy.isna().sum()))
+   
+    
+    
     
         
     
