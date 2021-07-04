@@ -1,6 +1,5 @@
 # Agribalyse-Synthèse Application 
 
-
 ----------------------
 :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  :tractor:  
 
@@ -14,8 +13,7 @@
 
 ---------------
 
-
- 
+Bienvenue !
 
 Voici une réutilisation des [données](https://datascience.etalab.studio/dgml/c763b24a-a0fe-4e77-9586-3d5453c631cd) d'Agribalyse :
 
