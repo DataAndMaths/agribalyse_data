@@ -78,9 +78,9 @@ def main():
     PAGES = {
         "Accueil": page1,
         "Exploration des données": page2,
-        "Exploration des données : \n Réduction de dimension" : page2_1,
-        "Prédiciton du DQR : Premiers modèles": page3,
-        "Prédiciton du DQR : Amélioration des modèles" : page4
+        #"Exploration des données : \n Réduction de dimension" : page2_1,
+        "Prédiciton du DQR": page3,
+        #"Prédiciton du DQR : Amélioration des modèles" : page4
         #"Clustering" : page10
         #"Références" : page50
     }
@@ -186,6 +186,32 @@ def page1():
 def page2():
     
     
+    
+     
+    #------------------------------------#  
+    # on renomme les labels qui sont assez longs
+    labels_long={'DQR - Note de qualité de la donnée (1 excellente ; 5 très faible)':"DQR",
+                        'Score unique EF (mPt/kg de produit)':"Score EF",
+                        'Changement climatique (kg CO2 eq/kg de produit)':'Changement climatique',
+                        "Appauvrissement de la couche d'ozone (E-06 kg CVC11 eq/kg de produit)":"Appauvrissement couche d'ozone",
+                        'Rayonnements ionisants (kBq U-235 eq/kg de produit)':'Rayonnements ionisants',
+                        "Formation photochimique d'ozone (E-03 kg NMVOC eq/kg de produit)":"Formation photochimique d'ozone",
+                        'Particules (E-06 disease inc./kg de produit)':"Particules",
+                        'Acidification terrestre et eaux douces (mol H+ eq/kg de produit)':'Acidification',
+                        'Eutrophisation terreste (mol N eq/kg de produit)':'Eutrophisation terreste',
+                        'Eutrophisation eaux douces (E-03 kg P eq/kg de produit)':"Eutrophisation eaux douces",
+                        'Eutrophisation marine (E-03 kg N eq/kg de produit)':'Eutrophisation marine',
+                        'Utilisation du sol (Pt/kg de produit)': 'Utilisation du sol',
+                        "Écotoxicité pour écosystèmes aquatiques d'eau douce (CTUe/kg de produit)":"Écotoxicité",
+                        'Épuisement des ressources eau (m3 depriv./kg de produit)':'Épuisement ressources eau',
+                        'Épuisement des ressources énergétiques (MJ/kg de produit)':'Épuisement ressources énergétiques',
+                        'Épuisement des ressources minéraux (E-06 kg Sb eq/kg de produit)':'Épuisement ressources minéraux' 
+                        }  
+    #------------------------------------#
+    
+    
+    
+    
     st.sidebar.markdown("")
     
     #--Sélection du Thème des graphique----#
@@ -247,6 +273,8 @@ def page2():
     ou très bon (1 à 3).
                 """)
   
+   
+  
     #-------------------------------------------------------------------------#
     st.subheader('Informations générales')
     
@@ -298,7 +326,9 @@ def page2():
                        histnorm='probability',
                        marginal='box',
                        title='Histogramme de la variable {}'.format(var_cont),
-                       color_discrete_sequence=["#748726"])
+                       color_discrete_sequence=px.colors.qualitative.Vivid
+                       )
+                       
     st.write(fig)
     
     #-----------------------------------#
@@ -359,7 +389,8 @@ def page2():
     
     fig = px.histogram(synthese_dataset, x=var_cat,
                        title='Distribution de la variable {}'.format(var_cat),
-                       color_discrete_sequence=["#748726"])
+                       color_discrete_sequence=px.colors.qualitative.Vivid
+                        )
     fig.update_xaxes(categoryorder="total descending")
     st.write(fig)
 
@@ -395,13 +426,31 @@ def page2():
                                     dimensions=[target,var_cont_scatter_mat], 
                                     title='Scatter Matrix',
                                     color_continuous_scale=px.colors.diverging.Fall,
-                                    color_discrete_sequence=px.colors.qualitative.Antique)
+                                    color_discrete_sequence=px.colors.qualitative.Vivid,
+                                    labels={'DQR - Note de qualité de la donnée (1 excellente ; 5 très faible)':"DQR",
+                                            'Score unique EF (mPt/kg de produit)':"Score EF",
+                                            'Changement climatique (kg CO2 eq/kg de produit)':'Changement climatique',
+                                            "Appauvrissement de la couche d'ozone (E-06 kg CVC11 eq/kg de produit)":"Appauvrissement couche d'ozone",
+                                            'Rayonnements ionisants (kBq U-235 eq/kg de produit)':'Rayonnements ionisants',
+                                            "Formation photochimique d'ozone (E-03 kg NMVOC eq/kg de produit)":"Formation photochimique d'ozone",
+                                            'Particules (E-06 disease inc./kg de produit)':"Particules",
+                                            'Acidification terrestre et eaux douces (mol H+ eq/kg de produit)':'Acidification',
+                                            'Eutrophisation terreste (mol N eq/kg de produit)':'Eutrophisation terreste',
+                                            'Eutrophisation eaux douces (E-03 kg P eq/kg de produit)':"Eutrophisation eaux douces",
+                                            'Eutrophisation marine (E-03 kg N eq/kg de produit)':'Eutrophisation marine',
+                                            'Utilisation du sol (Pt/kg de produit)': 'Utilisation du sol',
+                                            "Écotoxicité pour écosystèmes aquatiques d'eau douce (CTUe/kg de produit)":"Écotoxicité",
+                                            'Épuisement des ressources eau (m3 depriv./kg de produit)':'Épuisement ressources eau',
+                                            'Épuisement des ressources énergétiques (MJ/kg de produit)':'Épuisement ressources énergétiques',
+                                            'Épuisement des ressources minéraux (E-06 kg Sb eq/kg de produit)':'Épuisement ressources minéraux' 
+                                            }
+                                    )
             # taille markers
             fig.update_traces(marker=dict(size=1))
             # enlever ou réduire les labels, valeurs, ticks qui rendent illisibles
             nb_col=len(var_cont_scatter_mat)  
-            fig.update_layout({"xaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+3.8)/nb_col)) for i in range(nb_col)})
-            fig.update_layout({"yaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+2.2)/nb_col)) for i in range(nb_col)})
+            fig.update_layout({"xaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+250)/nb_col)) for i in range(nb_col)})
+            fig.update_layout({"yaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+249)/nb_col)) for i in range(nb_col)})
             fig.update_layout(autosize=False, width=750, height=710)
             st.write(fig)
     
@@ -430,9 +479,23 @@ def page2():
                                             )   
         if var_conts_parallel !=[]:
             # changer les noms des labels trop longs
-            labels_long={"DQR - Note de qualité de la donnée (1 excellente ; 5 très faible)":"DQR",
-                         "Score unique EF (mPt/kg de produit)" : "Score unique EF"}
-            
+            labels_long={'DQR - Note de qualité de la donnée (1 excellente ; 5 très faible)':"DQR",
+                        'Score unique EF (mPt/kg de produit)':"Score EF",
+                        'Changement climatique (kg CO2 eq/kg de produit)':'Changement climatique',
+                        "Appauvrissement de la couche d'ozone (E-06 kg CVC11 eq/kg de produit)":"Appauvrissement couche d'ozone",
+                        'Rayonnements ionisants (kBq U-235 eq/kg de produit)':'Rayonnements ionisants',
+                        "Formation photochimique d'ozone (E-03 kg NMVOC eq/kg de produit)":"Formation photochimique d'ozone",
+                        'Particules (E-06 disease inc./kg de produit)':"Particules",
+                        'Acidification terrestre et eaux douces (mol H+ eq/kg de produit)':'Acidification',
+                        'Eutrophisation terreste (mol N eq/kg de produit)':'Eutrophisation terreste',
+                        'Eutrophisation eaux douces (E-03 kg P eq/kg de produit)':"Eutrophisation eaux douces",
+                        'Eutrophisation marine (E-03 kg N eq/kg de produit)':'Eutrophisation marine',
+                        'Utilisation du sol (Pt/kg de produit)': 'Utilisation du sol',
+                        "Écotoxicité pour écosystèmes aquatiques d'eau douce (CTUe/kg de produit)":"Écotoxicité",
+                        'Épuisement des ressources eau (m3 depriv./kg de produit)':'Épuisement ressources eau',
+                        'Épuisement des ressources énergétiques (MJ/kg de produit)':'Épuisement ressources énergétiques',
+                        'Épuisement des ressources minéraux (E-06 kg Sb eq/kg de produit)':'Épuisement ressources minéraux' 
+                        }
             
             fig = px.parallel_coordinates(synthese_dataset,
                                           dimensions=var_conts_parallel, 
@@ -440,6 +503,7 @@ def page2():
                                           color_continuous_scale=px.colors.diverging.Fall,
                                           labels=labels_long
                                           )
+
             st.write(fig)
     
     #-----------------------------------#        
@@ -475,7 +539,7 @@ def page2():
                          y=target,
                          color=cat2_box,
                          title="Box plot",
-                         color_discrete_sequence=px.colors.qualitative.Antique)
+                         color_discrete_sequence=px.colors.qualitative.Vivid)
             fig.update_layout(boxgap=0, showlegend=False)
             fig.update_xaxes(tickangle=45)
             st.write(fig) 
@@ -492,7 +556,7 @@ def page2():
                             orientation='h', 
                             color=cat2_ridge,
                             title="Ridgeline".format(target, cat2_ridge),
-                            color_discrete_sequence=px.colors.qualitative.Antique)
+                            color_discrete_sequence=px.colors.qualitative.Vivid)
             fig.update_traces(side='positive', width=2)
             fig.update_layout(showlegend=False) 
             st.write(fig)  
@@ -556,7 +620,7 @@ def page2():
         fig = px.scatter_matrix(synthese_dataset, dimensions=col_float_no_target,
                                 title="Scatter matrix des variables numériques, sans la variable cible",
                                 color_continuous_scale=px.colors.diverging.Fall,
-                                color_discrete_sequence=px.colors.qualitative.Antique)
+                                color_discrete_sequence=px.colors.qualitative.Vivid)
         fig.update_traces(marker=dict(size=1))
         fig.update_layout({"xaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+3.8)/nb_col)) for i in range(nb_col)})
         fig.update_layout({"yaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+2.2)/nb_col)) for i in range(nb_col)})
@@ -573,13 +637,15 @@ def page2():
                                      dimensions=var_conts_scatter_mat, 
                                      title='Scatter Matrix',
                                      color_continuous_scale=px.colors.diverging.Fall,
-                                     color_discrete_sequence=px.colors.qualitative.Antique)
+                                     color_discrete_sequence=px.colors.qualitative.Vivid,
+                                     labels=labels_long
+                                     )
              # taille markers
              fig.update_traces(marker=dict(size=2.5))
              # enlever ou réduire les labels, valeurs, ticks qui rendent illisibles
              nb_col=len(var_conts_scatter_mat)  
-             fig.update_layout({"xaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+4)/nb_col)) for i in range(nb_col)})
-             fig.update_layout({"yaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+3)/nb_col)) for i in range(nb_col)})
+             fig.update_layout({"xaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+20)/nb_col)) for i in range(nb_col)})
+             fig.update_layout({"yaxis" + str(i+1): dict(showticklabels=False, ticklen=0, titlefont=dict(size=(nb_col+20)/nb_col)) for i in range(nb_col)})
              #fig.update_layout({"xaxis" : dict( titlefont=dict(size=(nb_col+3.8)/nb_col)) })
              #fig.update_layout({"yaxis" : dict( titlefont=dict(size=(nb_col+2.2)/nb_col)) })             
              fig.update_layout(autosize=False, width=750, height=710)
@@ -958,7 +1024,7 @@ def page2():
             
             st.markdown("""*Mmm ... Affichage à améliorer :confused:*""")
     
-  
+    
     caching.clear_cache()
   
     
@@ -993,13 +1059,16 @@ def page2_1():
     
   
 #==============================   Page 3  ===================================#
-#================== Prédiction du DQR : Premiers modèles ====================#
+#=========================== Prédiction du DQR  ====================#
 
 def page3():
     
-    st.title("Prédiction du DQR : Premiers modèles")
+    st.title("Prédiction du DQR")
 
-    #-------------------------------------------------------------------------#    
+
+
+    #*************************************************************************#
+    #*************************************************************************#
     st.header("Données originales")
     
     data_original=pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
@@ -1010,8 +1079,12 @@ def page3():
     data_original_copy = data_original.copy()
 
 
+
+
+
     #*************************************************************************#
     #*************************************************************************#
+    st.markdown("")
     st.header("Pré-traitement des données")
 
     #----------------------------------#
@@ -1120,6 +1193,7 @@ def page3():
     
     #*************************************************************************#
     #*************************************************************************#
+    st.markdown("")
     st.header("Premiers modèles")
     
     
@@ -1345,29 +1419,30 @@ def page3():
     
     
     #-------------------------------------------------------------------------#
-  #  st.subheader("Machines à vecteurs de support")
+    st.subheader("Machines à vecteurs de support")
     
     #-------------------------------------------------------------------------#
-   # st.subheader("Méthodes des plus proches voisins")
+    st.subheader("Méthodes des plus proches voisins")
     
     #-------------------------------------------------------------------------#
-   # st.subheader("Arbres de décision")
+    st.subheader("Arbres de décision")
     
     #-------------------------------------------------------------------------#
-    #st.subheader("Méthodes ensemblistes")
+    st.subheader("Méthodes ensemblistes")
     
     #-------------------------------------------------------------------------#
    # st.subheader("Réseaux de neurones")
     
-    caching.clear_cache() 
+    #caching.clear_cache() 
     
     
+   
     
-#==============================   Page 4  ===================================#
-#==================  Prédiction du DQR : Amélioration des modèles  ==========#
-def page4():
-    
-    st.title("Prédiction du DQR : Amélioration des modèles")
+   
+    #*************************************************************************#
+    #*************************************************************************#
+    st.markdown("")
+    st.header("Amélioration des modèles")
     caching.clear_cache()
     
 #########################################################
