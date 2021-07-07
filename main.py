@@ -1219,8 +1219,7 @@ def page3():
     ## model : le modèle utilisé pour l'évaluation
     ## Xtrain, ytrain : données pour l'entraînement
     ## cv : nombre de cross-validation
-    ## scoring : la métrique utilisé (donnée parfois sous forme négative !)
-
+   
     # output de 'learning curve' (il y en a 5 en tout, on n'en considère que 3 ici)
     ## N : array des tailles des échantillons utilisées pour l'entraînement
     ## train_score : array des scores pour chaque cross-validation, et chacun des échantillons d'entraînement 
@@ -1254,7 +1253,10 @@ def page3():
         ax[0][0].fill_between(N, (-val_score).mean(axis=1) - (-val_score).std(axis=1),
                              (-val_score).mean(axis=1) + (-val_score).std(axis=1), alpha=0.1)
         ax[0][0].legend()
-        ax[0][0].set_title('MAE')
+        ## dans train_score, on considère la dernière cross-validation (échantillon le plus grand), on fait la moyenne des valeurs
+        ## avec val_score, on fait de même
+        ax[0][0].set_title('MAE : train={}, val={}'.format(round(-train_score[-1].mean(),2),round(-val_score[-1].mean(),2)))
+   
         #ax[0][0].xlabel("Taille de l'ensemble d'entraînement")
         
         #------------------------------------#
@@ -1277,7 +1279,10 @@ def page3():
         ax[0][1].fill_between(N, (-val_score).mean(axis=1) - (-val_score).std(axis=1),
                              (-val_score).mean(axis=1) + (-val_score).std(axis=1), alpha=0.1)
         ax[0][1].legend()
-        ax[0][1].set_title('MSE')
+        ## dans train_score, on considère la dernière cross-validation (échantillon le plus grand), on fait la moyenne des valeurs
+        ## avec val_score, on fait de même
+        ax[0][1].set_title('MSE : train={}, val={}'.format(round(-train_score[-1].mean(),2),round(-val_score[-1].mean(),2)))
+   
         #ax[0][0].xlabel("Taille de l'ensemble d'entraînement")
        
         
@@ -1301,7 +1306,10 @@ def page3():
         ax[1][0].fill_between(N, (-val_score).mean(axis=1) - (-val_score).std(axis=1),
                              (-val_score).mean(axis=1) + (-val_score).std(axis=1), alpha=0.1)
         ax[1][0].legend()
-        ax[1][0].set_title('RMSE')
+        ## dans train_score, on considère la dernière cross-validation (échantillon le plus grand), on fait la moyenne des valeurs
+        ## avec val_score, on fait de même
+        ax[1][0].set_title('RMSE : train={}, val={}'.format(round(-train_score[-1].mean(),2),round(-val_score[-1].mean(),2)))
+   
         #ax[0][0].xlabel("Taille de l'ensemble d'entraînement")
        
         
@@ -1325,7 +1333,10 @@ def page3():
         ax[1][1].fill_between(N, (val_score).mean(axis=1) - (val_score).std(axis=1),
                              (val_score).mean(axis=1) + (val_score).std(axis=1), alpha=0.1)
         ax[1][1].legend()
-        ax[1][1].set_title('R2')
+        ## dans train_score, on considère la dernière cross-validation (échantillon le plus grand), on fait la moyenne des valeurs
+        ## avec val_score, on fait de même
+        ax[1][1].set_title('R2 : train={}, val={}'.format(round(train_score[-1].mean(),2),round(val_score[-1].mean(),2)))
+    
         #ax[0][0].xlabel("Taille de l'ensemble d'entraînement")
         
         
