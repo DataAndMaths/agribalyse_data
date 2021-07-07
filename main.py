@@ -1522,11 +1522,11 @@ def page3():
          
     if models_ens_rf_reg != []:
         for model in models_ens_rf_reg:
-            if model=='Tree':
+            if model=='Random Forest':
                 # definir le modèle 
                 model_ens_rf_reg = RandomForestRegressor()
                 model_ens_rf_reg.fit(X_train,y_train)
-                st.write('Tree')
+                st.write('Random Forest')
                 evaluation(model_ens_rf_reg, 
                            X_train, y_train,
                            c_v)
