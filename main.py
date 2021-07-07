@@ -1460,7 +1460,7 @@ def page3():
     
     models_knn_reg = st.multiselect("Sélectionnez les modèles linéaires", 
                                     ['kNN'],
-                                    key="models_svm_reg") 
+                                    key="models_knn_reg") 
    
     #-----------------#
     # liste des noms des modèles
