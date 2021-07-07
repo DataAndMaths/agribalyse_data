@@ -1432,6 +1432,29 @@ def page3():
     #-------------------------------------------------------------------------#
     st.subheader("Machines à vecteurs de support")
     
+    models_svm_reg = st.multiselect("Sélectionnez les modèles linéaires", 
+                                    ['SVR'],
+                                    key="models_svm_reg") 
+   
+    #-----------------#
+    # liste des noms des modèles
+    model_name = ['SVR"]
+    # taille de la cross-validation              
+    c_v = 4
+         
+    if models_svm_reg != []:
+        for model in models_svm_reg:
+            if model=='SVR':
+                # definir le modèle 
+                model_svm_svr = SVR()
+                model_svm_svr.fit(X_train,y_train)
+                st.write('SVR')
+                evaluation(model_svm_svr, 
+                           X_train, y_train,
+                           c_v)
+             
+    
+    
     #-------------------------------------------------------------------------#
     st.subheader("Méthodes des plus proches voisins")
     
