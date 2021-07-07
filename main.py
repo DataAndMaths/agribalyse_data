@@ -1219,7 +1219,7 @@ def page3():
     ## model : le modèle utilisé pour l'évaluation
     ## Xtrain, ytrain : données pour l'entraînement
     ## cv : nombre de cross-validation
-    ## scoring : la métrique utilisé (donnée sous forme négative pour certains !)
+    ## scoring : la métrique utilisé (donnée parfois sous forme négative !)
 
     # output de 'learning curve' (il y en a 5 en tout, on n'en considère que 3 ici)
     ## N : array des tailles des échantillons utilisées pour l'entraînement
@@ -1259,7 +1259,7 @@ def page3():
         
         #------------------------------------#
         # métrique 2
-        # utilisation de la classe 'learning_curve' avec 'neg_mean_absolute_error'
+        # utilisation de la classe 'learning_curve' avec 'neg_mean_squared_error'
         scoring = 'neg_mean_squared_error'
         N, train_score, val_score = learning_curve(model,            
                                                    Xtrain, ytrain,
@@ -1283,7 +1283,7 @@ def page3():
         
         #------------------------------------#
         # métrique 3
-        # utilisation de la classe 'learning_curve' avec 'neg_mean_absolute_error'
+        # utilisation de la classe 'learning_curve' avec 'neg_root_mean_squared_error'
         scoring = 'neg_root_mean_squared_error'
         N, train_score, val_score = learning_curve(model,            
                                                    Xtrain, ytrain,
@@ -1307,7 +1307,7 @@ def page3():
         
         #------------------------------------#
         # métrique 4
-        # utilisation de la classe 'learning_curve' avec 'neg_mean_absolute_error'
+        # utilisation de la classe 'learning_curve' avec "r2"
         scoring = "r2"
         N, train_score, val_score = learning_curve(model,            
                                                    Xtrain, ytrain,
@@ -1320,10 +1320,10 @@ def page3():
         ax[1][1].plot(N, val_score.mean(axis=1), label='validation score')
         # on rajoute une zone autour des courbes avec l'écart-type :
         # "courbe +/- écart-type"
-        ax[1][1].fill_between(N, (train_score).mean(axis=1) - (-train_score).std(axis=1),
-                             (train_score).mean(axis=1) + (-train_score).std(axis=1), alpha=0.1)
-        ax[1][1].fill_between(N, (val_score).mean(axis=1) - (-val_score).std(axis=1),
-                             (val_score).mean(axis=1) + (-val_score).std(axis=1), alpha=0.1)
+        ax[1][1].fill_between(N, (train_score).mean(axis=1) - (train_score).std(axis=1),
+                             (train_score).mean(axis=1) + (train_score).std(axis=1), alpha=0.1)
+        ax[1][1].fill_between(N, (val_score).mean(axis=1) - (val_score).std(axis=1),
+                             (val_score).mean(axis=1) + (val_score).std(axis=1), alpha=0.1)
         ax[1][1].legend()
         ax[1][1].set_title('R2')
         #ax[0][0].xlabel("Taille de l'ensemble d'entraînement")
