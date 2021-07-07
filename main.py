@@ -1432,7 +1432,7 @@ def page3():
     #-------------------------------------------------------------------------#
     st.subheader("Machines à vecteurs de support")
     
-    models_svm_reg = st.multiselect("Sélectionnez les modèles linéaires", 
+    models_svm_reg = st.multiselect("Sélectionnez un modèle linéaire (ou plusieurs)", 
                                     ['SVR'],
                                     key="models_svm_reg") 
    
@@ -1458,7 +1458,7 @@ def page3():
     #-------------------------------------------------------------------------#
     st.subheader("Méthodes des plus proches voisins")
     
-    models_knn_reg = st.multiselect("Sélectionnez les modèles linéaires", 
+    models_knn_reg = st.multiselect("Sélectionnez un modèle des plus proches voisins (ou plusieurs)", 
                                     ['kNN'],
                                     key="models_knn_reg") 
    
@@ -1483,7 +1483,7 @@ def page3():
     #-------------------------------------------------------------------------#
     st.subheader("Arbres de décision")
     
-    models_tree_reg = st.multiselect("Sélectionnez les modèles linéaires", 
+    models_tree_reg = st.multiselect("Sélectionnez un modèle d'arbre (ou plusieurs)", 
                                     ['Tree'],
                                     key="models_tree_reg") 
    
@@ -1510,7 +1510,7 @@ def page3():
     #-------------------------------------------------------------------------#
     st.subheader("Méthodes ensemblistes")
     
-    models_ens_rf_reg = st.multiselect("Sélectionnez les modèles linéaires", 
+    models_ens_rf_reg = st.multiselect("Sélectionnez un modèle ensembliste (ou plusieurs ... mais attention au temps ⏳')", 
                                        ['Random Forest'],
                                        key="models_ens_rf_reg") 
    
