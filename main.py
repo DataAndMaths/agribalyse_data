@@ -1438,7 +1438,7 @@ def page3():
    
     #-----------------#
     # liste des noms des modèles
-    model_name = ['SVR"]
+    model_name = ['SVR']
     # taille de la cross-validation              
     c_v = 4
          
