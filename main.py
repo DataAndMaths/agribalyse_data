@@ -1458,11 +1458,79 @@ def page3():
     #-------------------------------------------------------------------------#
     st.subheader("Méthodes des plus proches voisins")
     
+    models_knn_reg = st.multiselect("Sélectionnez les modèles linéaires", 
+                                    ['kNN'],
+                                    key="models_svm_reg") 
+   
+    #-----------------#
+    # liste des noms des modèles
+    model_name = ['kNN']
+    # taille de la cross-validation              
+    c_v = 4
+         
+    if models_knn_reg != []:
+        for model in models_knn_reg:
+            if model=='kNN':
+                # definir le modèle 
+                model_knn_reg = KNeighborsRegressor()
+                model_knn_reg.fit(X_train,y_train)
+                st.write('kNN')
+                evaluation(model_knn_reg, 
+                           X_train, y_train,
+                           c_v)
+   
+    
     #-------------------------------------------------------------------------#
     st.subheader("Arbres de décision")
     
+    models_tree_reg = st.multiselect("Sélectionnez les modèles linéaires", 
+                                    ['Tree'],
+                                    key="models_tree_reg") 
+   
+    #-----------------#
+    # liste des noms des modèles
+    model_name = ['Tree']
+    # taille de la cross-validation              
+    c_v = 4
+         
+    if models_tree_reg != []:
+        for model in models_tree_reg:
+            if model=='Tree':
+                # definir le modèle 
+                model_tree_reg = DecisionTreeRegressor()
+                model_tree_reg.fit(X_train,y_train)
+                st.write('Tree')
+                evaluation(model_tree_reg, 
+                           X_train, y_train,
+                           c_v)
+   
+    
+    
+    
     #-------------------------------------------------------------------------#
     st.subheader("Méthodes ensemblistes")
+    
+    models_ens_rf_reg = st.multiselect("Sélectionnez les modèles linéaires", 
+                                       ['Random Forest'],
+                                       key="models_ens_rf_reg") 
+   
+    #-----------------#
+    # liste des noms des modèles
+    model_name = ['Random Forest']
+    # taille de la cross-validation              
+    c_v = 4
+         
+    if models_ens_rf_reg != []:
+        for model in models_ens_rf_reg:
+            if model=='Tree':
+                # definir le modèle 
+                model_ens_rf_reg = RandomForestRegressor()
+                model_ens_rf_reg.fit(X_train,y_train)
+                st.write('Tree')
+                evaluation(model_ens_rf_reg, 
+                           X_train, y_train,
+                           c_v)
+   
     
     #-------------------------------------------------------------------------#
    # st.subheader("Réseaux de neurones")
