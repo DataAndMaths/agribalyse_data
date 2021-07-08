@@ -82,7 +82,7 @@ def main():
         "Prédiciton du DQR": page3,
         #"Prédiciton du DQR : Amélioration des modèles" : page4
         #"Clustering" : page10
-        #"Références" : page50
+        "Références - Liens" : page50
     }
 
     st.sidebar.title('Navigation 🧭')
@@ -1546,6 +1546,27 @@ def page3():
     st.markdown("")
     st.header("Amélioration des modèles")
     caching.clear_cache()
+    
+    
+    
+    
+    
+    
+    
+    #==============================   Page 50 ===================================#
+    #============================= Références - Liens ==============================#
+
+
+def page50():
+    st.title("Références - Liens")
+
+    st.header("Liens divers")
+    st.markdown("[nos gestes climat : simulateur empreinte carbone](https://nosgestesclimat.fr/)")    
+    
+    
+    
+    
+    
     
 #########################################################
 if __name__=="__main__":
