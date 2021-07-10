@@ -737,9 +737,8 @@ def page2():
   
 
     #-------------------------------------------------------------------------#
-    st.subheader(" Entre variables numériques et catégorielles")        
-                
-    
+    st.subheader("Entre variables numériques et catégorielles")        
+
     # colonnes type 'object' sans la variable cible, sans 'Nom du Produit en Français'
     col_object_no_target = synthese_dataset.select_dtypes(object).drop('Nom du Produit en Français', axis=1).columns
     # colonnes type 'float' sans la variable cible
@@ -751,7 +750,7 @@ def page2():
     # choisir le type de graphique  
     type_cont_cat = st.selectbox("Sélectionnez le type de graphique", 
                                  ["Box plot", "Ridgeline", "Parallel categories plot", "(option) Treemap"],
-                                 key="cont_cat")
+                                 key="3e_expl_cont_cat")
    
    
     
@@ -1348,7 +1347,7 @@ def page3():
     #-------------------------------------------------------------------------#
     st.subheader("Modèles linéaires")
     
-    models_linear_default = st.multiselect("Sélectionnez les modèles linéaires", 
+    models_linear_default = st.multiselect("Sélectionnez un modèle linéaire (ou plusieurs)", 
                                           ['LinearRegression', 'Ridge', 'Lasso', 
                                            'ElasticNet', 'SGDRegressor', 
                                            "Régression Polynomiale"],
@@ -1432,7 +1431,7 @@ def page3():
     #-------------------------------------------------------------------------#
     st.subheader("Machines à vecteurs de support")
     
-    models_svm_reg = st.multiselect("Sélectionnez un modèle linéaire (ou plusieurs)", 
+    models_svm_reg = st.multiselect("Sélectionnez un modèle SVM (ou plusieurs)", 
                                     ['SVR'],
                                     key="models_svm_reg") 
    
@@ -1545,6 +1544,74 @@ def page3():
     #*************************************************************************#
     st.markdown("")
     st.header("Amélioration des modèles")
+    
+    
+    
+    #-------------------------------------------------------------------------#
+    st.subheader("Modèles linéaires")
+    
+    models_linear_default = st.multiselect("Sélectionnez un modèle linéaire", 
+                                          ['LinearRegression', 'Ridge', 'Lasso', 
+                                           'ElasticNet', 'SGDRegressor', 
+                                           "Régression Polynomiale"],
+                                            key="improve_models_linear_default") 
+   
+    #-----------------#
+    # liste des noms des modèles
+    model_name = ['LinearRegression', 'Ridge', 'Lasso', 'ElasticNet', 'SGDRegressor',
+                  "Régression Polynomiale"]
+    # liste des scoring
+    #scoring_list = ['neg_mean_absolute_error','neg_mean_squared_error','neg_root_mean_squared_error', 'r2']
+    # liste des noms des métriques
+    # metric_name = ['MAE', 'MSE', 'RMSE', 'R2']
+    # taille de la cross-validation
+    c_v = 4
+    #-----------------#
+    
+    
+    
+    
+    
+    
+    
+    #-------------------------------------------------------------------------#
+    st.subheader("Machines à vecteurs de support")
+    
+    models_svm_reg = st.multiselect("Sélectionnez un modèle SVM", 
+                                    ['SVR'],
+                                    key="improve_models_svm_reg") 
+   
+    
+    
+    
+    #-------------------------------------------------------------------------#
+    st.subheader("Méthodes des plus proches voisins")
+    
+    models_knn_reg = st.multiselect("Sélectionnez un modèle des plus proches voisins", 
+                                    ['kNN'],
+                                    key="improve_models_knn_reg") 
+   
+    
+    
+    #-------------------------------------------------------------------------#
+    st.subheader("Arbres de décision")
+    
+    models_tree_reg = st.multiselect("Sélectionnez un modèle d'arbre", 
+                                    ['Tree'],
+                                    key="improve_models_tree_reg") 
+   
+    
+    
+    
+    #-------------------------------------------------------------------------#
+    st.subheader("Méthodes ensemblistes")
+    
+    models_ens_rf_reg = st.multiselect("Sélectionnez un modèle ensembliste", 
+                                       ['Random Forest'],
+                                       key="improve_models_ens_rf_reg") 
+   
+    
+    
     caching.clear_cache()
     
     
@@ -1553,8 +1620,8 @@ def page3():
     
     
     
-    #==============================   Page 50 ===================================#
-    #============================= Références - Liens ==============================#
+#==============================   Page 50 ===================================#
+#========================== Références - Liens ==============================#
 
 
 def page50():
