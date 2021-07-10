@@ -79,7 +79,7 @@ def main():
         "Accueil": page1,
         "Exploration des données": page2,
         #"Exploration des données : \n Réduction de dimension" : page2_1,
-        "Prédiciton du DQR": page3,
+        "Prédiction du DQR": page3,
         #"Prédiciton du DQR : Amélioration des modèles" : page4
         #"Clustering" : page10
         "Références - Liens" : page50
@@ -334,7 +334,7 @@ def page2():
     #-----------------------------------#
     st.markdown("##### Coefficient d'asymétrie")
     var_conts_skew = st.multiselect("Sélectionnez les variables continues", 
-                                    synthese_dataset.select_dtypes(float).columns,
+                                    list(synthese_dataset.select_dtypes(float).columns),
                                     key='cont_skewness')  
     
     if var_conts_skew != []:
@@ -474,7 +474,7 @@ def page2():
     #-----------------------------------#
     elif type_cont=="(option) Parallel Coordinates Plot":
         var_conts_parallel = st.multiselect("Sélectionnez des variables continues", 
-                                            synthese_dataset.select_dtypes(float).columns, 
+                                            list(synthese_dataset.select_dtypes(float).columns), 
                                             key="cont_parallel"
                                             )   
         if var_conts_parallel !=[]:
@@ -577,7 +577,7 @@ def page2():
     #-----------------------------------#
     elif type_cont_cat=="(option, non stable) Treemap":
         var_cat1_cat2_tree = st.multiselect("Sélectionnez deux variables catégorielles", 
-                                            synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                            list(synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns),
                                             key="cat1_cat2_tree"
                                             )
         if var_cat1_cat2_tree != []:
@@ -630,7 +630,7 @@ def page2():
     #-----------------------------------#
     elif select_conts=="Scatter Matrix":
          var_conts_scatter_mat = st.multiselect("Sélectionnez les variables continues", 
-                                                synthese_dataset.select_dtypes(float).drop(target,axis=1).columns,
+                                                list(synthese_dataset.select_dtypes(float).drop(target,axis=1).columns),
                                                 key="conts_scatter_matr")
          if var_conts_scatter_mat !=():
              fig = px.scatter_matrix(synthese_dataset,
@@ -668,7 +668,7 @@ def page2():
     elif select_conts=="Parallel Coordinates Plot":
         
         var_conts_parallel = st.multiselect("Sélectionnez les variables continues (2 ou plus)", 
-                                            synthese_dataset.select_dtypes(float).drop(target,axis=1).columns, 
+                                            list(synthese_dataset.select_dtypes(float).drop(target,axis=1).columns), 
                                             key="conts_parallel")
         if var_conts_parallel !=[]:
             fig = px.parallel_coordinates(synthese_dataset,
@@ -697,7 +697,7 @@ def page2():
     #-----------------------------------#
     if select_cats=="Histogramme":
         var_cats_hist = st.multiselect("Sélectionnez les variables catégorielles ('Code AGB', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
-                                       synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                       list(synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns),
                                        key="cats_hist")
         
         if var_cats_hist != []:
@@ -711,7 +711,7 @@ def page2():
     #-----------------------------------#
     elif select_cats=="Table de contingence":
         var_cats_table = st.multiselect("Sélectionnez les variables catégorielles ('Code AGB', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
-                                        synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                        list(synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns),
                                         key="cats_table")
 
         if var_cats_table != []:
@@ -757,7 +757,7 @@ def page2():
     #-----------------------------------#
     if type_cont_cat=="Box plot":
         var_cont1_cat2_box = st.multiselect("Sélectionnez une variable continue, puis une variable catégorielle ('Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
-                                            synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                            list(synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns),
                                             key="cont_1_cat2_box")
         if var_cont1_cat2_box != []:
             var_cont1_box=var_cont1_cat2_box[0]
@@ -776,7 +776,7 @@ def page2():
     #-----------------------------------#
     elif type_cont_cat=="Ridgeline":
         var_cont1_cat2_ridge = st.multiselect("Sélectionnez une variable continue, puis une variable catégorielle ('Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
-                                              synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                              list(synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns),
                                               key="cont_1_cat2_ridge")
         if var_cont1_cat2_ridge !=[]:
             var_cont1_ridge=var_cont1_cat2_ridge[0]
@@ -797,7 +797,7 @@ def page2():
     #-----------------------------------#
     elif type_cont_cat=="Parallel categories plot":
         var_cont1_cat2_parallel = st.multiselect("Sélectionnez une variable continue, puis une variable catégorielle ('Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
-                                                 synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                                 list(synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns),
                                                  key="cont_1_ca2_parallel")  
         
         if var_cont1_cat2_parallel !=[]:
@@ -814,7 +814,7 @@ def page2():
     #-----------------------------------#
     elif type_cont_cat=="(option) Treemap":
         var_cont1_cat2_cat3_tree = st.multiselect("Sélectionnez une variable continue, puis deux variables catégorielles ('Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
-                                                  synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                                  list(synthese_dataset.drop([target,'Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns),
                                                   key="cont_1_cat2_cat_3_tree")
         
         if var_cont1_cat2_cat3_tree !=[]:
@@ -831,7 +831,7 @@ def page2():
                              )
             st.write(fig) 
             
-            st.markdown("""*Mmm ... Valeurs bizarres, paramétrage à vérifier :confused:*""")
+            # st.markdown("""*Mmm ... Valeurs bizarres, paramétrage à vérifier :confused:*""")
     
     
     #*************************************************************************#
@@ -850,7 +850,7 @@ def page2():
     On utilise un indicateur appelé le **rapport de corrélation** $\eta^2$ :  
     * c'est un nombre compris entre 0 et 1
     * si $\eta^2$=0, il n’y a pas a priori de relation entre les variables
-    * si $\eta^2$=1, il n’existe pas a priori de relation entre les variables.
+    * si $\eta^2$=1, il existe a priori une relation entre les variables.
     """)
     
     with st.beta_expander("Compléments"):
@@ -911,7 +911,7 @@ def page2():
     st.markdown("")
     
     var_cont1_cat2_eta2 = st.multiselect("Sélectionnez une variable continue, puis une variable catégorielle ('Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
-                                         synthese_dataset.drop(['Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
+                                         list(synthese_dataset.drop(['Code AGB', 'Code CIQUAL', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns),
                                          key="cont_1_cat2_eta2") 
 
     if var_cont1_cat2_eta2 !=[]:
@@ -1007,8 +1007,8 @@ def page2():
     st.markdown("")
     
     var_cat1_cat2_xi = st.multiselect("Sélectionnez deux variables catégorielles( 'Code AGB', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
-                                         synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns,
-                                         key="cat_1_cat2_xi") 
+                                      list( synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns),
+                                      key="cat_1_cat2_xi") 
     
     if var_cat1_cat2_xi != []:
             cat1_xi = var_cat1_cat2_xi[0]
@@ -1102,10 +1102,11 @@ def page3():
      
            
     #----------------------------------#
-    st.subheader("Feature selection simple 🗑️")
+    st.subheader("Feature Engineering simple")
+    st.markdown("#### Feature selection simple 🗑️")
     
     var_to_delete_simple = st.multiselect("Sélectionnez les variables à supprimer", 
-                                          data_original.columns,
+                                          list(data_original.columns),
                                           key="var_to_delete_simple ") 
     if var_to_delete_simple !=[]:
         data_original_copy = train_set.drop(var_to_delete_simple, axis=1)
@@ -1113,7 +1114,7 @@ def page3():
 
     
     #----------------------------------#
-    st.subheader("Encodage des variables catégorielles")
+    st.markdown("#### Encodage des variables catégorielles")
         
     encoding_mth = st.selectbox("Sélectionnez la méthode d'encodage", 
                                 ["Label Encoding", "One-Hot Encoding","Binary Encoding"],
@@ -1162,7 +1163,8 @@ def page3():
             st.write(data_original_copy)
             
     #----------------------------------#
-    st.subheader("Données manquantes")
+    st.subheader("Data Cleaning")
+    st.markdown("#### Données manquantes")
             
     st.write("Il n'y a aucune donnée manquante.")
     st.write(pd.DataFrame(data_original_copy.isna().sum()))
@@ -1348,9 +1350,9 @@ def page3():
     st.subheader("Modèles linéaires")
     
     models_linear_default = st.multiselect("Sélectionnez un modèle linéaire (ou plusieurs)", 
-                                          ['LinearRegression', 'Ridge', 'Lasso', 
+                                           list(['LinearRegression', 'Ridge', 'Lasso', 
                                            'ElasticNet', 'SGDRegressor', 
-                                           "Régression Polynomiale"],
+                                           "Régression Polynomiale"]),
                                             key="models_linear_default") 
    
     #-----------------#
@@ -1432,7 +1434,7 @@ def page3():
     st.subheader("Machines à vecteurs de support")
     
     models_svm_reg = st.multiselect("Sélectionnez un modèle SVM (ou plusieurs)", 
-                                    ['SVR'],
+                                    list(['SVR']),
                                     key="models_svm_reg") 
    
     #-----------------#
@@ -1458,7 +1460,7 @@ def page3():
     st.subheader("Méthodes des plus proches voisins")
     
     models_knn_reg = st.multiselect("Sélectionnez un modèle des plus proches voisins (ou plusieurs)", 
-                                    ['kNN'],
+                                    list(['kNN']),
                                     key="models_knn_reg") 
    
     #-----------------#
@@ -1483,7 +1485,7 @@ def page3():
     st.subheader("Arbres de décision")
     
     models_tree_reg = st.multiselect("Sélectionnez un modèle d'arbre (ou plusieurs)", 
-                                    ['Tree'],
+                                    list(['Tree']),
                                     key="models_tree_reg") 
    
     #-----------------#
@@ -1509,8 +1511,8 @@ def page3():
     #-------------------------------------------------------------------------#
     st.subheader("Méthodes ensemblistes")
     
-    models_ens_rf_reg = st.multiselect("Sélectionnez un modèle ensembliste (ou plusieurs ... mais attention au temps ⏳')", 
-                                       ['Random Forest'],
+    models_ens_rf_reg = st.multiselect("Sélectionnez un modèle ensembliste (ou plusieurs ... mais attention au temps ⏳)", 
+                                       list(['Random Forest']),
                                        key="models_ens_rf_reg") 
    
     #-----------------#
@@ -1551,9 +1553,9 @@ def page3():
     st.subheader("Modèles linéaires")
     
     models_linear_default = st.multiselect("Sélectionnez un modèle linéaire", 
-                                          ['LinearRegression', 'Ridge', 'Lasso', 
+                                           list(['LinearRegression', 'Ridge', 'Lasso', 
                                            'ElasticNet', 'SGDRegressor', 
-                                           "Régression Polynomiale"],
+                                           "Régression Polynomiale"]),
                                             key="improve_models_linear_default") 
    
     #-----------------#
@@ -1578,7 +1580,7 @@ def page3():
     st.subheader("Machines à vecteurs de support")
     
     models_svm_reg = st.multiselect("Sélectionnez un modèle SVM", 
-                                    ['SVR'],
+                                    list(['SVR']),
                                     key="improve_models_svm_reg") 
    
     
@@ -1588,7 +1590,7 @@ def page3():
     st.subheader("Méthodes des plus proches voisins")
     
     models_knn_reg = st.multiselect("Sélectionnez un modèle des plus proches voisins", 
-                                    ['kNN'],
+                                    list(['kNN']),
                                     key="improve_models_knn_reg") 
    
     
@@ -1597,7 +1599,7 @@ def page3():
     st.subheader("Arbres de décision")
     
     models_tree_reg = st.multiselect("Sélectionnez un modèle d'arbre", 
-                                    ['Tree'],
+                                    list(['Tree']),
                                     key="improve_models_tree_reg") 
    
     
@@ -1607,7 +1609,7 @@ def page3():
     st.subheader("Méthodes ensemblistes")
     
     models_ens_rf_reg = st.multiselect("Sélectionnez un modèle ensembliste", 
-                                       ['Random Forest'],
+                                       list(['Random Forest']),
                                        key="improve_models_ens_rf_reg") 
    
     
