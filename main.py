@@ -55,6 +55,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import *
 # model selection 
 from sklearn.model_selection import learning_curve, validation_curve
+# outliers
+from sklearn.ensemble import  IsolationForest
 # feature selection
 from sklearn.feature_selection import VarianceThreshold, SelectKBest
 #------------------#
@@ -299,6 +301,9 @@ def page2():
     
     
     
+    st.markdown("###### Doublons")
+    nb_duplicated = synthese_dataset.duplicated().sum()
+    st.write(nb_duplicated)
     
     #*************************************************************************#
     #*************************************************************************#
@@ -1073,13 +1078,7 @@ def page3():
     data_original=pd.read_csv("datasets/Agribalyse_Synthese.csv", header=0)
     st.write(data_original)
     
-    #----------------------------------#
-    # Créer une copie pour les modifications
-    data_original_copy = data_original.copy()
-
-
-
-
+    
 
     #*************************************************************************#
     #*************************************************************************#
@@ -1100,17 +1099,22 @@ def page3():
         st.markdown("*Format des données*")
         st.write(train_set.shape)
      
-           
+    
+    #----------------------------------#
+    # Créer une copie pour les modifications
+    train_copy = train_set.copy()
+
+       
     #----------------------------------#
     st.subheader("Feature Engineering simple")
     st.markdown("#### Feature selection simple 🗑️")
     
     var_to_delete_simple = st.multiselect("Sélectionnez les variables à supprimer", 
-                                          list(data_original.columns),
+                                          list(train_copy.columns),
                                           key="var_to_delete_simple ") 
     if var_to_delete_simple !=[]:
-        data_original_copy = train_set.drop(var_to_delete_simple, axis=1)
-        st.write(data_original_copy)
+        train_copy = train_copy.drop(var_to_delete_simple, axis=1)
+        st.write(train_copy)
 
     
     #----------------------------------#
@@ -1123,58 +1127,63 @@ def page3():
     
     if encoding_mth != None:
         # liste des colonnes type 'object'
-        col_object = data_original_copy.select_dtypes(object).columns
+        col_object = train_copy.select_dtypes(object).columns
             
         if encoding_mth=="Label Encoding":
             # créer l'encodeur
+            st.write(train_copy)
             label_encoder = LabelEncoder()
             for col in col_object:
-                data_original_copy[col] = label_encoder.fit_transform(data_original_copy[col])
+                train_copy[col] = label_encoder.fit_transform(train_copy[col])
         
             # afficher le nouveau dataset
             st.markdown("*Train set après Label Encoding*")
-            st.write(data_original_copy)
+            st.write(train_copy)
             
         elif encoding_mth=="One-Hot Encoding":
             # créer l'encodeur
             OH_encoder = OneHotEncoder(sparse=False)
                 
             # appliquer l'encodeur : cela retourne un array
-            OH_array = OH_encoder.fit_transform(data_original_copy[col_object])
+            OH_array = OH_encoder.fit_transform(train_copy[col_object])
             # transformer en dataframe + rajouter les noms de colonnes
             OH_df = pd.DataFrame(OH_array)
             # remettre les bons index
-            OH_df.index = data_original_copy.index
+            OH_df.index = train_copy.index
             # supprimer les colonnes 'object' du dataset initial
-            df_initial_num = data_original_copy.drop(col_object, axis=1)
+            df_initial_num = train_copy.drop(col_object, axis=1)
             # concaténer les deux dataframe
-            data_original_copy = pd.concat([df_initial_num,OH_df], axis=1)
+            train_copy = pd.concat([df_initial_num,OH_df], axis=1)
             # afficher le nouveau dataset
             st.markdown("*Train set après One-Hot Encoding*")
-            st.write(data_original_copy)
+            st.write(train_copy)
             
         elif encoding_mth=="Binary Encoding":
             # créer l'encodeur : on précise les colonnes à encoder
             binary_encoder = ce.BinaryEncoder(cols=col_object)
             # appliquer l'encodeur à nos données
-            data_original_copy = binary_encoder.fit_transform(data_original_copy)
+            train_copy = binary_encoder.fit_transform(train_copy)
             # afficher le nouveau dataset
             st.markdown("*Train set après Binary Encoding*")
-            st.write(data_original_copy)
+            st.write(train_copy)
             
     #----------------------------------#
     st.subheader("Data Cleaning")
     st.markdown("#### Données manquantes")
             
     st.write("Il n'y a aucune donnée manquante.")
-    st.write(pd.DataFrame(data_original_copy.isna().sum()))
+    st.write(pd.DataFrame(train_copy.isna().sum()))
+    
+    st.markdown("#### Doublons")
+    st.write("Il n'y avait aucun doublon dans les données originales (tous les produits étaient différents) .")
+    st.write("NB : nous ne considérons pas les doublons qui peuvent apparaître après la suppression de variables.")
             
     #----------------------------------#
     st.subheader("Créer X_train et y_train")
     
     target = "DQR - Note de qualité de la donnée (1 excellente ; 5 très faible)"
-    X_train = data_original_copy.drop(target,axis=1)
-    y_train = data_original_copy[target]
+    X_train = train_copy.drop(target,axis=1)
+    y_train = train_copy[target]
             
     agree_show_X_train = st.checkbox('Afficher X_train',
                                      key="show_X_train")
@@ -1185,7 +1194,7 @@ def page3():
         st.markdown("*Format des données*")
         st.write(X_train.shape)
         
-        
+     
         
         
         
@@ -1534,7 +1543,7 @@ def page3():
    
     
     #-------------------------------------------------------------------------#
-   # st.subheader("Réseaux de neurones")
+    # st.subheader("Réseaux de neurones")
     
     #caching.clear_cache() 
     
@@ -1548,22 +1557,187 @@ def page3():
     st.header("Amélioration des modèles")
     
     
+    #-------------------------------------------------------------------------#
+    # On construit une fonction pour pouvoir modifier la partie pré-traitement
+    # On reprend pas la partie 'création du train set et du test set' :
+    # on appliquera le pré-traitement sur le train set crée précédemment
+    
+    # input : données utilisées (qui sera le train set) par la suite)
+    # output: X_train, y_train
+    
+    def preprocessing_simple(data):
+        
+        #----------------------------------#
+        # créer une copie de 'data'
+        data_impr = data.copy()
+        
+        #----------------------------------#
+        st.markdown("##### Feature Engineering simple")
+        st.markdown("###### Feature selection simple 🗑️")
+    
+        var_to_delete_simple_impr = st.multiselect("Sélectionnez les variables à supprimer", 
+                                                   list(data_impr.columns),
+                                                   key="var_to_delete_simple_impr ") 
+        if var_to_delete_simple_impr !=[]:
+            data_impr = data_impr.drop(var_to_delete_simple_impr, axis=1)
+            #st.write(data_impr)
+        #----------------------------------#
+
+    
+        #----------------------------------#
+        st.markdown("###### Encodage des variables catégorielles")
+        
+        encoding_mth_impr = st.selectbox("Sélectionnez la méthode d'encodage", 
+                                         ["Label Encoding", "One-Hot Encoding","Binary Encoding"],
+                                         key="encoding_mth_impr") 
+    
+    
+        if encoding_mth_impr != None:
+            # liste des colonnes type 'object'
+            col_object = data_impr.select_dtypes(object).columns
+            
+            if encoding_mth_impr=="Label Encoding":
+                # créer l'encodeur
+                label_encoder = LabelEncoder()
+                for col in col_object:
+                    data_impr[col] = label_encoder.fit_transform(data_impr[col])
+        
+                # afficher le nouveau dataset
+                #st.markdown("###### *Train set après Label Encoding*")
+                #st.write(data_impr)
+            
+            elif encoding_mth_impr=="One-Hot Encoding":
+                # créer l'encodeur
+                OH_encoder = OneHotEncoder(sparse=False)
+                
+                # appliquer l'encodeur : cela retourne un array
+                OH_array = OH_encoder.fit_transform(data_impr[col_object])
+                # transformer en dataframe + rajouter les noms de colonnes
+                OH_df = pd.DataFrame(OH_array)
+                # remettre les bons index
+                OH_df.index = data_impr.index
+                # supprimer les colonnes 'object' du dataset initial
+                df_initial_num = data_impr.drop(col_object, axis=1)
+                # concaténer les deux dataframe
+                data_impr = pd.concat([df_initial_num,OH_df], axis=1)
+                # afficher le nouveau dataset
+                #st.markdown("###### *Train set après One-Hot Encoding*")
+                #st.write(data_impr)
+            
+            elif encoding_mth_impr=="Binary Encoding":
+                # créer l'encodeur : on précise les colonnes à encoder
+                binary_encoder = ce.BinaryEncoder(cols=col_object)
+                # appliquer l'encodeur à nos données
+                data_impr = binary_encoder.fit_transform(data_impr)
+                # afficher le nouveau dataset
+                #st.markdown("###### *Train set après Binary Encoding*")
+                #st.write(data_impr)
+        #----------------------------------#
+         
+            
+        #----------------------------------#
+        st.markdown("##### Data Cleaning")
+        #----------------#
+        st.markdown("###### Données manquantes")
+            
+        st.text("Il n'y a aucune donnée manquante.")
+        #----------------#
+        
+
+        #----------------#
+        st.markdown("###### Doublons")
+        
+        st.text("""
+                Il n'y avait aucun doublon dans les données originales (tous les produits étaient différents). 
+                NB : nous ne considérons pas les doublons qui peuvent apparaître après la suppression de variables.
+                """)
+        #----------------#
+        #----------------------------------#
+  
+    
+        #----------------------------------#
+        st.markdown("##### Créer X_train et y_train")
+        
+        target = "DQR - Note de qualité de la donnée (1 excellente ; 5 très faible)"
+        X_train = data_impr.drop(target,axis=1)
+        y_train = data_impr[target]
+            
+        st.markdown("###### *X_train*")
+        st.write(X_train)
+        st.markdown("###### *Format des données*")
+        st.write(X_train.shape)
+        
+        return X_train, y_train
+        #----------------------------------#
+    #-------------------------------------------------------------------------#
+       
+    
+    
+    #-------------------------------------------------------------------------#
+    # fonction pour détecter et supprimer les outliers
+    # input : données utilisées (qui seront X_train et y_train par la suite)
+    # output : X_train et y_train sans une partie des outliers
+    
+    def preprocessing_outliers(data1, data2):
+        st.markdown("###### Outliers")
+        
+        outliers_list_impr = st.selectbox("Choisir une méthode de détection d'outliers",
+                                          ["Aucune", "Isolation Forest"],
+                                          key="outliers_list_impr ") 
+        
+        
+        if outliers_list_impr != []:
+            if outliers_list_impr=="Aucune":
+                st.markdown("")
+                return data1, data2
+            elif outliers_list_impr=="Isolation Forest":
+                
+                # Choisir le paramètre 'contanimation', taux d'outliers probables qu'on voudrait détecter
+                contamination_impr = st.slider("contamination",
+                                               min_value=0.0, max_value=0.5, step=0.01,
+                                               value=0.1,
+                                               key="contamination_impr")
+        
+                # définition du modèle
+                iso = IsolationForest(contamination=contamination_impr, random_state=0)
+                # application du modèle sur les données
+                # retourne array de 1 et -1(outliers)
+                outliers_array = iso.fit_predict(data1)
+                # afficher les outliers
+                st.markdown("###### *Nombre d'outliers*")
+                st.write(len(data1[outliers_array==-1]))
+                # suppression des outliers dans X_train et y_train, avec un masque
+                st.markdown("###### *Format X_train*")
+                st.write(data1[outliers_array != -1].shape)
+                st.markdown("###### *Format y_train*")
+                st.write(data2[outliers_array != -1].shape)
+                return data1, data2
+    #-------------------------------------------------------------------------#
+
+    
+    
+    
+    
+    
+    
+    
+    
     
     #-------------------------------------------------------------------------#
     st.subheader("Modèles linéaires")
     
-    models_linear_default = st.multiselect("Sélectionnez un modèle linéaire", 
-                                           list(['LinearRegression', 'Ridge', 'Lasso', 
-                                           'ElasticNet', 'SGDRegressor', 
-                                           "Régression Polynomiale"]),
-                                            key="improve_models_linear_default") 
-   
+    models_linear_improve = st.selectbox("Sélectionnez un modèle linéaire", 
+                                          list(['LinearRegression', 'Ridge', 'Lasso', 
+                                          'ElasticNet', 'SGDRegressor', 
+                                          "Régression Polynomiale"]),
+                                           key="models_linear_default_improve") 
+    
     #-----------------#
     # liste des noms des modèles
     model_name = ['LinearRegression', 'Ridge', 'Lasso', 'ElasticNet', 'SGDRegressor',
                   "Régression Polynomiale"]
     # liste des scoring
-    #scoring_list = ['neg_mean_absolute_error','neg_mean_squared_error','neg_root_mean_squared_error', 'r2']
+    # scoring_list = ['neg_mean_absolute_error','neg_mean_squared_error','neg_root_mean_squared_error', 'r2']
     # liste des noms des métriques
     # metric_name = ['MAE', 'MSE', 'RMSE', 'R2']
     # taille de la cross-validation
@@ -1571,46 +1745,177 @@ def page3():
     #-----------------#
     
     
+    if models_linear_improve != []:
+        #---------------------------------------------------------------------#
+        if models_linear_improve == 'LinearRegression':
+            st.markdown("*en construction 🏗️*")
+        #---------------------------------------------------------------------#    
+            
+            
+        #---------------------------------------------------------------------#    
+        elif models_linear_improve == "Ridge":
+            
+            #-----------------------------------------------------------------#
+            with st.beta_expander("Quelques mots sur le modèle Ridge"):
+                st.markdown("""
+                            * Il s'agit une version régularisée de la régression linéaire, où l'on ajoute un contrôle sur les coefficients theta_i.
+                            * Fonction de coût :
+                                """)
+                st.latex(r'''
+                         J(\theta) = MSE(\theta) + \alpha \frac{1}{2} \sum_{i=1}^n {\theta_i}^2
+                         ''')
+                st.markdown("""
+                            &nbsp &nbsp&nbsp &nbsp où  
+                            &nbsp &nbsp&nbsp &nbsp &nbsp &nbsp    MSE(theta) est la fonction coût habituelle d'une régression linéaire  
+                            &nbsp &nbsp&nbsp &nbsp &nbsp &nbsp    alpha >= 0 est un hyperparamètre qui contrôle le degré de régularisation. 
+                            
+                            * alpha
+                                * Si alpha = 0, il s'agit de la régression linéaire classique (peu de régularisation).
+                                * Si alpha est grand, cela force les coefficients theta_i à être petits (beaucoup de régularisation). 
+                            * La régularisation ridge a un effet de 'regroupement des coefficients', au sens où des variables corrélées auront des coefficients similaires. 
+                            * Le modèle est sensible aux outliers (le carré dans la formule va accentuer les erreurs). 
+                            * Le modèle est sensible aux échelles des features. 
+                            * Pratique 
+                                * Il est conseillé de standardiser les données. 
+    
+                            """) 
+            #-----------------------------------------------------------------#                
+                                     
+
+            
+            #-----------------------------------------------------------------#
+            st.markdown("#### Pré-traitement des données")
+            st.text("""
+                    On repart avec le train set.  
+                    On rajoute la gestion des outliers.
+                    """)
+             
+            X_train, y_train = preprocessing_simple(train_set)
+            X_train, y_train = preprocessing_outliers(X_train, y_train)
+            
+            #-----------------------------#
+            # Evaluation du modèle
+            
+            agree_evaluate_model_ridge = st.checkbox('Réévaluer le modèle Ridge ?',
+                                                     key="agree_evaluate_model_ridge")
+
+            if agree_evaluate_model_ridge:
+                # definir le modèle 
+                model_lin_ridge = Ridge()
+                model_lin_ridge.fit(X_train,y_train)
+                st.write('Ridge')
+                evaluation(model_lin_ridge, 
+                           X_train, y_train,
+                           c_v)
+            #-----------------------------#
+              
+            st.markdown("")
+            #-----------------------------------------------------------------#
+                    
+            
+            
+            #-----------------------------------------------------------------#
+            st.markdown("#### Hyperparamètres")
+    
+            alpha_ridge = st.slider("Choisir alpha", 
+                                    min_value=0.0, max_value=20.0, value=1.0,
+                                    step=0.1,
+                                    key="alpha_ridge")
+            
+        
+            #-----------------------------#
+            # Evaluation du modèle
+            
+            agree_evaluate_model_ridge_alpha = st.checkbox('Réévaluer le modèle Ridge ?',
+                                                           key="agree_evaluate_model_ridge_alpha")
+
+            if agree_evaluate_model_ridge_alpha:
+                # definir le modèle 
+                model_lin_ridge = Ridge(alpha=alpha_ridge)
+                model_lin_ridge.fit(X_train,y_train)
+                st.write('Ridge')
+                evaluation(model_lin_ridge, 
+                           X_train, y_train,
+                           c_v)
+            #-----------------------------#
+              
+            st.markdown("")
+            
+    
+            st.markdown("")
+            #-----------------------------------------------------------------#
+                    
+            
+            
+            #-----------------------------------------------------------------#
+            st.markdown("#### Feature Engineering")
+            
+            #-----------------------------#
+            st.markdown("##### Standardisation - Normalisation")
+            st.markdown("")
+            #-----------------------------#
+            
+            #-----------------------------#
+            st.markdown("##### Feature Selection")
+            st.markdown("")
+            #-----------------------------#
+            
+            #-----------------------------#
+            st.markdown("##### Créer de nouveaux features")
+            st.markdown("")
+            #-----------------------------#
+    
+          
+    
+            st.markdown("")
+            st.markdown("")
+            #-----------------------------------------------------------------#
+        #---------------------------------------------------------------------#   
     
     
     
     
     
     #-------------------------------------------------------------------------#
-    st.subheader("Machines à vecteurs de support")
+    #st.subheader("Machines à vecteurs de support")
     
-    models_svm_reg = st.multiselect("Sélectionnez un modèle SVM", 
-                                    list(['SVR']),
-                                    key="improve_models_svm_reg") 
+    #models_svm_improve = st.selecbox("Sélectionnez un modèle SVM", 
+    #                                 list(['SVR']),
+    #                                 key="models_svm_improve") 
+    
+    #---------------------------------------------------------------------#
+    #    if models_svm_improve == 'SVR':
+     #       st.markdown("*en construction 🏗️*")
+        #---------------------------------------------------------------------#
    
     
     
     
     #-------------------------------------------------------------------------#
-    st.subheader("Méthodes des plus proches voisins")
+    #st.subheader("Méthodes des plus proches voisins")
     
-    models_knn_reg = st.multiselect("Sélectionnez un modèle des plus proches voisins", 
-                                    list(['kNN']),
-                                    key="improve_models_knn_reg") 
+    #models_knn_reg = st.multiselect("Sélectionnez un modèle des plus proches voisins", 
+    #                                list(['kNN']),
+    #                                key="improve_models_knn_reg") 
    
     
     
     #-------------------------------------------------------------------------#
-    st.subheader("Arbres de décision")
+    #st.subheader("Arbres de décision")
     
-    models_tree_reg = st.multiselect("Sélectionnez un modèle d'arbre", 
-                                    list(['Tree']),
-                                    key="improve_models_tree_reg") 
+    #models_tree_reg = st.multiselect("Sélectionnez un modèle d'arbre", 
+    #                                list(['Tree']),
+    #                                key="improve_models_tree_reg") 
    
     
     
     
     #-------------------------------------------------------------------------#
-    st.subheader("Méthodes ensemblistes")
+    #st.subheader("Méthodes ensemblistes")
     
-    models_ens_rf_reg = st.multiselect("Sélectionnez un modèle ensembliste", 
-                                       list(['Random Forest']),
-                                       key="improve_models_ens_rf_reg") 
+    #models_ens_rf_reg = st.multiselect("Sélectionnez un modèle ensembliste", 
+    #                                   list(['Random Forest']),
+    #                                   key="improve_models_ens_rf_reg") 
    
     
     
@@ -1628,6 +1933,41 @@ def page3():
 
 def page50():
     st.title("Références - Liens")
+    
+    st.header("Machine Learning")
+    st.markdown("#### Livres")
+    
+    st.markdown("""
+                |Auteur|Livre|Github, Site, ...|
+                |:--------|:-----------|:-----------|
+                |Aurélien Géron|Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow||
+                """)
+    
+    
+    
+    
+    st.markdown("")
+    st.markdown("")
+    
+    #-------------------------------------------------------------------------#
+    st.markdown("#### Vidéos")
+    
+    
+    
+    
+    st.markdown("""
+                |Lien|Github, Site, ...|
+                |:--------|:-----------|
+                |[MachineLearnia](https://www.youtube.com/c/MachineLearnia/)|[site](https://machinelearnia.com/)|
+                """)
+    
+    
+    st.markdown("")
+    st.markdown("")
+    
+    
+    
+    #-------------------------------------------------------------------------#
 
     st.header("Liens divers")
     st.markdown("[nos gestes climat : simulateur empreinte carbone](https://nosgestesclimat.fr/)")    
