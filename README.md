@@ -19,8 +19,6 @@ Voici une réutilisation des [données](https://datascience.etalab.studio/dgml/c
 
 [Lien vers l'application](https://share.streamlit.io/dataandmaths/agribalyse_data/main/main.py) (en construction :construction:)
 
-NB : Il y a une mise à jour très récente de Streamlit, du coup, c'est lent, ça bug, ... 😕
-
 ------------------------------------
 
 ## Cadre
