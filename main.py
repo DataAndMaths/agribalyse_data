@@ -1030,7 +1030,7 @@ def page2():
             st.markdown("""*Mmm ... Affichage à améliorer :confused:*""")
     
     
-    caching.clear_cache()
+   # caching.clear_cache()
   
     
   
