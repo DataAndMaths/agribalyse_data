@@ -858,7 +858,7 @@ def page2():
     * si $\eta^2$=1, il existe a priori une relation entre les variables.
     """)
     
-    with st.beta_expander("Compléments"):
+    with st.expander("Compléments"):
         st.markdown("""
                     [Formules](https://openclassrooms.com/fr/courses/4525266-decrivez-et-nettoyez-votre-jeu-de-donnees/4774896-analysez-une-variable-quantitative-et-une-qualitative-par-anova) :  
                         """)
@@ -944,7 +944,7 @@ def page2():
     * plus la case est claire, plus la case est source de non-indépendance.   
     """)
     
-    with st.beta_expander("Compléments"):
+    with st.expander("Compléments"):
         st.markdown("""
     [Formules](https://openclassrooms.com/fr/courses/4525266-decrivez-et-nettoyez-votre-jeu-de-donnees/4775616-analysez-deux-variables-qualitatives-avec-le-chi-2) :
                 """) 
