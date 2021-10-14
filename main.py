@@ -350,7 +350,7 @@ def page2():
         st.write(pd.DataFrame(skew_list, index=var_conts_skew))
     
     #-----------------#
-    with st.beta_expander("Compléments"):
+    with st.expander("Compléments"):
         st.markdown("""
                     Lien : [documentation scipy](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.skew.html)
                     """)
