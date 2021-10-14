@@ -84,7 +84,7 @@ def main():
         "Prédiction du DQR": page3,
         #"Prédiciton du DQR : Amélioration des modèles" : page4
         #"Clustering" : page10
-        "Références - Liens" : page50
+        #"Références - Liens" : page50
     }
 
     st.sidebar.title('Navigation 🧭')
@@ -1873,6 +1873,26 @@ def page3():
         #---------------------------------------------------------------------#   
     
     
+        #---------------------------------------------------------------------#    
+        elif models_linear_improve == "Lasso":
+            st.markdown("*en construction 🏗️*")
+        #---------------------------------------------------------------------#    
+        
+        #---------------------------------------------------------------------#    
+        elif models_linear_improve == "ElasticNet":
+            st.markdown("*en construction 🏗️*")
+        #---------------------------------------------------------------------#    
+        
+        #---------------------------------------------------------------------#    
+        elif models_linear_improve == "SGDRegressor":
+            st.markdown("*en construction 🏗️*")
+        #---------------------------------------------------------------------#    
+        
+        #---------------------------------------------------------------------#    
+        elif models_linear_improve == "Régression Polynomiale":
+            st.markdown("*en construction 🏗️*")
+        #---------------------------------------------------------------------#    
+        
     
     
     
@@ -1927,50 +1947,6 @@ def page3():
     
     
     
-#==============================   Page 50 ===================================#
-#========================== Références - Liens ==============================#
-
-
-def page50():
-    st.title("Références - Liens")
-    
-    st.header("Machine Learning")
-    st.markdown("#### Livres")
-    
-    st.markdown("""
-                |Auteur|Livre|Github, Site, ...|
-                |:--------|:-----------|:-----------|
-                |Aurélien Géron|Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow||
-                """)
-    
-    
-    
-    
-    st.markdown("")
-    st.markdown("")
-    
-    #-------------------------------------------------------------------------#
-    st.markdown("#### Vidéos")
-    
-    
-    
-    
-    st.markdown("""
-                |Lien|Github, Site, ...|
-                |:--------|:-----------|
-                |[MachineLearnia](https://www.youtube.com/c/MachineLearnia/)|[site](https://machinelearnia.com/)|
-                """)
-    
-    
-    st.markdown("")
-    st.markdown("")
-    
-    
-    
-    #-------------------------------------------------------------------------#
-
-    st.header("Liens divers")
-    st.markdown("[nos gestes climat : simulateur empreinte carbone](https://nosgestesclimat.fr/)")    
     
     
     
