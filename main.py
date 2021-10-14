@@ -1013,7 +1013,8 @@ def page2():
     
     var_cat1_cat2_xi = st.multiselect("Sélectionnez deux variables catégorielles( 'Code AGB', 'Nom du Produit en Français', 'LCI Name' ont été supprimées)", 
                                       list( synthese_dataset.select_dtypes(object).drop(['Code AGB', 'Nom du Produit en Français', 'LCI Name'], axis=1).columns),
-                                      key="cat_1_cat2_xi") 
+                                      key="cat_1_cat2_xi",
+                                      default=["Groupe d'aliment", "Livraison"]) 
     
     if var_cat1_cat2_xi != []:
             cat1_xi = var_cat1_cat2_xi[0]
