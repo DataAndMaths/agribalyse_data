@@ -285,7 +285,7 @@ def page2():
     
     st.markdown("#### Identification des variables")
     st.markdown("Type des variables")
-    st.write(synthese_dataset.dtypes)
+    #st.write(synthese_dataset.dtypes)
     
     st.write("Variable cible :dart:")
     #target = st.selectbox("Quelle est votre variable cible ?", 
