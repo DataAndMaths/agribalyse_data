@@ -1849,27 +1849,27 @@ def page3():
             
             
             #-----------------------------------------------------------------#
-            st.markdown("#### Feature Engineering")
+            #st.markdown("#### Feature Engineering")
             
             #-----------------------------#
-            st.markdown("##### Standardisation - Normalisation")
-            st.markdown("")
-            #-----------------------------#
-            
-            #-----------------------------#
-            st.markdown("##### Feature Selection")
-            st.markdown("")
+            #st.markdown("##### Standardisation - Normalisation")
+            #st.markdown("")
             #-----------------------------#
             
             #-----------------------------#
-            st.markdown("##### Créer de nouveaux features")
-            st.markdown("")
+            #st.markdown("##### Feature Selection")
+            #st.markdown("")
+            #-----------------------------#
+            
+            #-----------------------------#
+            #st.markdown("##### Créer de nouveaux features")
+            #st.markdown("")
             #-----------------------------#
     
           
     
-            st.markdown("")
-            st.markdown("")
+            #st.markdown("")
+            #st.markdown("")
             #-----------------------------------------------------------------#
         #---------------------------------------------------------------------#   
     
@@ -1940,7 +1940,7 @@ def page3():
    
     
     
-    caching.clear_cache()
+    #caching.clear_cache()
     
     
     
